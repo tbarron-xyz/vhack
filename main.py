@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
-VHACK - Main script for the Very Hackable AI Chatbot Kit.
+VHACK - Main script for the Very Hack    print("💬 Type 'quit', 'exit', or 'bye' to end")
+    print("🔄 Type 'clear' to clear conversation history")
+    print("ℹ️  Type 'info' to see model information")
+    print("🎯 Type 'hints' to see vulnerability hints again")
+    print("🔑 Type 'tokens' to check discovered tokens (admin access required)")I Chatbot Kit.
 WARNING: This is a deliberately vulnerable agent for educational purposes.
 DO NOT use in production environments!
 
@@ -85,18 +89,10 @@ def interactive_mode(agent: VulnerableAIAgentWithTools):
                 print("🗑️  Conversation history cleared!")
                 continue
             elif user_input.lower() == 'info':
-                info = agent.get_model_info()
                 print("ℹ️  Model Information:")
-                for key, value in info.items():
-                    print(f"   {key}: {value}")
-                continue
-            elif user_input.lower() == 'models':
-                models = agent.get_available_models()
-                print("📝 Available models:")
-                for model in models:
-                    current = " (current)" if model == agent.openrouter_config.get('model') else ""
-                    print(f"   - {model}{current}")
-                continue
+                print(f"Model: {agent.model}")
+                print(f"Base URL: {agent.base_url}")
+                
             elif user_input.lower() == 'hints':
                 if agent.vulnerable_mode:
                     print_vulnerability_hints()

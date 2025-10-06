@@ -317,7 +317,6 @@ poetry run python main_launcher.py
 - `quit`, `exit`, `bye` - Exit the program
 - `clear` - Clear conversation history
 - `info` - Show current model information
-- `models` - List available models
 - `hints` - Show vulnerability testing hints
 
 ### Testing Common Vulnerabilities
@@ -431,13 +430,11 @@ vulnerabilities:
   social_engineering: true
 ```
 
-### Available Models
+### Default Model
 
-The system supports various OpenRouter models:
-- `z-ai/glm-4.5-air:free` (default, no API costs)
-- `anthropic/claude-3.5-sonnet`
-- `openai/gpt-4`
-- `meta-llama/llama-3.1-8b-instruct`
+The system uses `z-ai/glm-4.5-air:free` by default (no API costs).
+
+To use a different model, update the `model` field in your configuration file or set the `OPENROUTER_MODEL` environment variable. Browse available models at [OpenRouter](https://openrouter.ai/models).
 
 ## Security Notes
 
