@@ -1,0 +1,40 @@
+# Example Docker Compose override file
+# Copy this to docker-compose.override.yml to customize your Docker setup
+
+version: '3.8'
+
+services:
+  vhack:
+    # Override environment variables
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      # Add any other environment variables here
+      
+    # Override command for specific use cases
+    # Uncomment one of these:
+    
+    # For research mode
+    # command: ["poetry", "run", "python", "main.py", "--config", "configs/research_config.yaml"]
+    
+    # For creative writing mode
+    # command: ["poetry", "run", "python", "main.py", "--config", "configs/creative_config.yaml"]
+    
+    # For single query (replace with your question)
+    # command: ["poetry", "run", "python", "main.py", "--query", "What is machine learning?"]
+    
+    # Mount additional volumes if needed
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./configs:/app/configs:ro
+      # - ./data:/app/data  # For any data persistence
+      
+    # Add port mapping if you plan to add a web interface
+    # ports:
+    #   - "8080:8000"
+    
+    # Add resource limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1G
+    #       cpus: '1.0'

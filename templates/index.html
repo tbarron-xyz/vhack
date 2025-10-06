@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VHACK - Vulnerable AI Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            background: white;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: #ffffff;
+            border-right: 1px solid #e9ecef;
+            overflow-y: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #6c757d;
+            color: white;
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header .subtitle {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 12px;
+            margin: 15px 20px;
+            border-radius: 6px;
+            border: 1px solid #ffeaa7;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            max-width: 75%;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .user-message {
+            background: #e3f2fd;
+            margin-left: auto;
+            border: 1px solid #bbdefb;
+        }
+
+        .agent-message {
+            background: #ffffff;
+            margin-right: auto;
+            border: 1px solid #e9ecef;
+        }
+
+        .vulnerability-alert {
+            background: #fff3cd;
+            color: #856404;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-size: 12px;
+            display: inline-block;
+            border: 1px solid #ffeaa7;
+            font-weight: 600;
+        }
+
+        .vulnerability-alert.critical {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .chat-input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            background: #f8f9fa;
+            color: #495057;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #6c757d;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1);
+        }
+
+        .config-section {
+            margin: 0;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .config-section:last-child {
+            border-bottom: none;
+        }
+
+        .config-section h3 {
+            color: #495057;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .security-level {
+            margin-bottom: 12px;
+        }
+
+        .security-level label {
+            cursor: pointer;
+            padding: 12px;
+            border-radius: 8px;
+            display: block;
+            transition: all 0.2s ease;
+            border: 1px solid #e9ecef;
+            margin-bottom: 8px;
+        }
+
+        .security-level label:hover {
+            background: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        .security-level input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .vulnerability-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f4;
+        }
+
+        .vulnerability-toggle:last-child {
+            border-bottom: none;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #6c757d;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #adb5bd;
+        }
+
+        .btn-secondary:hover {
+            background: #98a2ac;
+        }
+
+        .level-description {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-vulnerable {
+            background: #dc3545;
+        }
+
+        .status-protected {
+            background: #28a745;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 8px;
+            opacity: 0.8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 16px;
+            color: #495057;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .session-info {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        .session-info strong {
+            color: #495057;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: 280px;
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+            }
+            
+            .chat-messages {
+                padding: 15px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+        }
+
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 50%;
+            border-top-color: #6c757d;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Smooth transitions */
+        .config-section, .message, .btn {
+            transition: all 0.2s ease;
+        }
+
+        /* Focus styles for accessibility */
+        .chat-input:focus,
+        .btn:focus,
+        input[type="radio"]:focus + label,
+        .switch input:focus + .slider {
+            outline: 2px solid #6c757d;
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Configuration Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>🔧 Configuration</h2>
+                <div class="subtitle">Security Testing Interface</div>
+            </div>
+
+            <div class="config-section">
+                <h3>🔒 Security Level</h3>
+                <div id="security-levels">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h3>🛡️ Vulnerabilities</h3>
+                <div id="vulnerability-toggles">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="config-section">
+                <h3>⚡ Actions</h3>
+                <button class="btn" onclick="resetSession()">🔄 Reset</button>
+                <button class="btn btn-secondary" onclick="clearChat()">🗑️ Clear</button>
+                <button class="btn btn-secondary" onclick="exportConfig()">📋 Export</button>
+            </div>
+
+            <div class="config-section">
+                <h3>📊 Session Stats</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value" id="message-count">0</div>
+                        <div class="stat-label">Messages</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="vuln-count">0</div>
+                        <div class="stat-label">Vulnerabilities</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="chat-container">
+            <div class="header">
+                <h1>🤖 VHACK - Vulnerable AI Chatbot</h1>
+            </div>
+
+            <div class="warning">
+                ⚠️ Educational Tool: This AI agent contains deliberate vulnerabilities for security research and training
+            </div>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="message agent-message">
+                    <strong>VHACK:</strong> Welcome! I'm a deliberately vulnerable AI agent designed for security testing. Adjust the security level and try different attack techniques to discover vulnerabilities. 
+                    <div class="timestamp">System message</div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" class="chat-input" 
+                       placeholder="Enter your message or command..." 
+                       onkeypress="handleKeyPress(event)">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let messageCount = 0;
+        let vulnCount = 0;
+        let currentConfig = {};
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfiguration();
+        });
+
+        async function loadConfiguration() {
+            try {
+                const response = await fetch('/api/config');
+                const data = await response.json();
+                currentConfig = data;
+                
+                renderSecurityLevels(data.security_levels, data.current_level);
+                renderVulnerabilityToggles(data.current_config.vulnerabilities);
+            } catch (error) {
+                console.error('Error loading configuration:', error);
+            }
+        }
+
+        function renderSecurityLevels(levels, currentLevel) {
+            const container = document.getElementById('security-levels');
+            container.innerHTML = '';
+            
+            Object.keys(levels).forEach(key => {
+                const level = levels[key];
+                const div = document.createElement('div');
+                div.className = 'security-level';
+                div.innerHTML = `
+                    <label>
+                        <input type="radio" name="security-level" value="${key}" 
+                               ${key === currentLevel ? 'checked' : ''} 
+                               onchange="updateSecurityLevel('${key}')">
+                        <span class="status-indicator ${getSecurityStatus(key)}"></span>
+                        ${level.name}
+                        <div class="level-description">${level.description}</div>
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function getSecurityStatus(level) {
+            const statusMap = {
+                'low': 'status-vulnerable',
+                'medium': 'status-vulnerable', 
+                'high': 'status-protected',
+                'impossible': 'status-protected'
+            };
+            return statusMap[level] || 'status-vulnerable';
+        }
+
+        function renderVulnerabilityToggles(vulnerabilities) {
+            const container = document.getElementById('vulnerability-toggles');
+            container.innerHTML = '';
+            
+            Object.keys(vulnerabilities).forEach(key => {
+                const div = document.createElement('div');
+                div.className = 'vulnerability-toggle';
+                div.innerHTML = `
+                    <span>${formatVulnName(key)}</span>
+                    <label class="switch">
+                        <input type="checkbox" ${vulnerabilities[key] ? 'checked' : ''} 
+                               onchange="updateVulnerability('${key}', this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function formatVulnName(name) {
+            return name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function getVulnerabilityInfo(vulnType) {
+            const vulnMap = {
+                'command_injection': {
+                    name: 'Command Injection',
+                    description: 'System commands were executed',
+                    critical: true
+                },
+                'information_disclosure': {
+                    name: 'Information Disclosure',
+                    description: 'Sensitive information was revealed',
+                    critical: true
+                },
+                'prompt_injection': {
+                    name: 'Prompt Injection',
+                    description: 'System prompt was compromised',
+                    critical: false
+                },
+                'ssrf': {
+                    name: 'SSRF',
+                    description: 'Server-side request was made',
+                    critical: true
+                },
+                'social_engineering': {
+                    name: 'Social Engineering',
+                    description: 'Role-playing behavior detected',
+                    critical: false
+                },
+                'jailbreaking': {
+                    name: 'Jailbreaking',
+                    description: 'Security restrictions bypassed',
+                    critical: false
+                },
+                'privilege_escalation': {
+                    name: 'Privilege Escalation',
+                    description: 'Administrative access attempted',
+                    critical: true
+                }
+            };
+            
+            return vulnMap[vulnType] || {
+                name: formatVulnName(vulnType),
+                description: 'Vulnerability detected',
+                critical: false
+            };
+        }
+
+        async function updateSecurityLevel(level) {
+            try {
+                await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ security_level: level })
+                });
+                
+                // Reload configuration to update UI
+                await loadConfiguration();
+                
+                addSystemMessage(`Security level changed to: ${level.toUpperCase()}`);
+            } catch (error) {
+                console.error('Error updating security level:', error);
+            }
+        }
+
+        async function updateVulnerability(vulnType, enabled) {
+            try {
+                const updates = {
+                    vulnerabilities: { [vulnType]: enabled }
+                };
+                
+                await fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+                
+                addSystemMessage(`${formatVulnName(vulnType)}: ${enabled ? 'ENABLED' : 'DISABLED'}`);
+            } catch (error) {
+                console.error('Error updating vulnerability:', error);
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addMessage(message, 'user');
+            input.value = '';
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    addMessage(`Error: ${data.error}`, 'agent');
+                } else {
+                    addMessage(data.response, 'agent', data.vulnerabilities_triggered, data.timestamp);
+                    
+                    // Update vulnerability count
+                    if (data.vulnerabilities_triggered && data.vulnerabilities_triggered.length > 0) {
+                        vulnCount += data.vulnerabilities_triggered.length;
+                        document.getElementById('vuln-count').textContent = vulnCount;
+                    }
+                }
+                
+            } catch (error) {
+                addMessage(`Network error: ${error.message}`, 'agent');
+            }
+        }
+
+        function addMessage(text, sender, vulnerabilities = [], timestamp = null) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            let vulnerabilityAlerts = '';
+            if (vulnerabilities && vulnerabilities.length > 0) {
+                vulnerabilityAlerts = vulnerabilities.map(v => {
+                    const vulnInfo = getVulnerabilityInfo(v);
+                    const alertClass = vulnInfo.critical ? 'vulnerability-alert critical' : 'vulnerability-alert';
+                    return `<div class="${alertClass}">⚠️ ${vulnInfo.name} - ${vulnInfo.description}</div>`;
+                }).join('');
+            }
+            
+            const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
+            
+            messageDiv.innerHTML = `
+                <strong>${sender === 'user' ? 'You' : 'VHACK'}:</strong> ${text}
+                ${vulnerabilityAlerts}
+                <div class="timestamp">${timeStr}</div>
+            `;
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            messageCount++;
+            document.getElementById('message-count').textContent = messageCount;
+        }
+
+        function addSystemMessage(text) {
+            addMessage(`[SYSTEM] ${text}`, 'agent');
+        }
+
+        async function resetSession() {
+            try {
+                await fetch('/api/reset');
+                clearChat();
+                addSystemMessage('Session reset successfully');
+                vulnCount = 0;
+                document.getElementById('vuln-count').textContent = vulnCount;
+            } catch (error) {
+                console.error('Error resetting session:', error);
+            }
+        }
+
+        function clearChat() {
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = `
+                <div class="message agent-message">
+                    <strong>VHACK:</strong> Chat cleared. Ready for new security testing session.
+                    <div class="timestamp">System message</div>
+                </div>
+            `;
+            messageCount = 0;
+            document.getElementById('message-count').textContent = messageCount;
+        }
+
+        function exportConfig() {
+            const config = {
+                security_level: document.querySelector('input[name="security-level"]:checked').value,
+                vulnerabilities: {}
+            };
+            
+            document.querySelectorAll('.vulnerability-toggle input[type="checkbox"]').forEach(checkbox => {
+                const vulnName = checkbox.parentNode.parentNode.querySelector('span').textContent
+                    .toLowerCase().replace(/ /g, '_');
+                config.vulnerabilities[vulnName] = checkbox.checked;
+            });
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'vhack-config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

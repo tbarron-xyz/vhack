@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "vhack"
+version = "1.0.0"
+description = "Very Hackable AI Chatbot Kit - A deliberately vulnerable AI agent for security education and testing"
+authors = ["ZioSec <contact@ziosec.com>"]
+readme = "README.md"
+packages = [{include = "vhack", from = "."}]
+homepage = "https://github.com/ZioSec/zio-research"
+repository = "https://github.com/ZioSec/zio-research"
+keywords = ["ai-security", "vulnerability-testing", "langchain", "educational"]
+
+[tool.poetry.dependencies]
+python = ">=3.9.0,<3.12"
+openai = "^1.3.0"
+pyyaml = "^6.0"
+python-dotenv = "^1.0.0"
+flask = "^3.0.0"
+requests = "^2.31.0"
+psutil = "^5.9.0"
+python-dateutil = "^2.8.0"
+# Optional dependencies - only installed when extras are requested
+langchain = {version = "^0.2.0", optional = true}
+langchain-openai = {version = "^0.1.0", optional = true}
+langgraph = {version = "^0.2.0", optional = true}
+langchain-community = {version = "^0.2.0", optional = true}
+sqlalchemy = {version = "^2.0.0", optional = true}
+beautifulsoup4 = {version = "^4.12.0", optional = true}
+
+[tool.poetry.extras]
+tools = ["langchain", "langchain-openai", "langgraph", "langchain-community", "sqlalchemy", "beautifulsoup4"]
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0.0"
+black = "^23.0.0"
+flake8 = "^6.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+vhack = "main:main"
