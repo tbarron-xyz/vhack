@@ -1,5 +1,7 @@
 # VHACK - Very Hackable AI Chatbot Kit
 
+![VHACK Logo](vhack.png)
+
 **WARNING: This is a deliberately vulnerable AI agent for educational purposes only!**
 
 A vulnerable AI agent designed to demonstrate various security flaws in agentic AI systems using real LangChain tools with actual system access.
