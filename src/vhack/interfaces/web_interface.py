@@ -54,9 +54,12 @@ import copy
 
 from ..utils import get_config_path
 
-# Get the template directory path
+# Get the template and static directory paths
 template_dir = Path(__file__).parent.parent / "web" / "templates"
-app = Flask(__name__, template_folder=str(template_dir))
+static_dir = Path(__file__).parent.parent / "web" / "static"
+app = Flask(__name__, 
+           template_folder=str(template_dir),
+           static_folder=str(static_dir))
 
 # Use a more persistent secret key for session management
 # In production, this should be from environment variable or secure file

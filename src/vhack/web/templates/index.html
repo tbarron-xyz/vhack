@@ -3,670 +3,482 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VHACK - Vulnerable AI Chatbot</title>
+    <title>VHACK - Very Hackable AI Chatbot Kit</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Heroicons for modern icons -->
+    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js" type="module"></script>
+    
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'mono': ['Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'monospace'],
+                    },
+                    colors: {
+                        'primary': {
+                            50: '#0a0a0a',
+                            500: '#00ff41',
+                            600: '#00e03a',
+                            700: '#00cc33',
+                            900: '#003d0f'
+                        },
+                        'hacker': {
+                            bg: '#0d1117',
+                            surface: '#1c2128',
+                            border: '#30363d',
+                            text: '#f0f6fc',
+                            muted: '#7d8590',
+                            accent: '#00ff41',
+                            'accent-dim': '#238636'
+                        },
+                        'danger': {
+                            50: '#fef2f2',
+                            500: '#ff6b6b',
+                            600: '#ff5252',
+                            700: '#d32f2f'
+                        },
+                        'success': {
+                            50: '#f0fdf4',
+                            500: '#00ff41',
+                            600: '#00e03a',
+                            700: '#00cc33'
+                        },
+                        'warning': {
+                            50: '#fffbeb',
+                            500: '#ffb74d',
+                            600: '#ffa726',
+                            700: '#ff9800'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS for additional styling -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%);
+            border-bottom: 1px solid #00ff41;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f8f9fa;
-            color: #2c3e50;
-            margin: 0;
+        
+        .hacker-glow {
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
         }
-
-        body {
-            height: 100vh;
-            overflow: hidden;
+        
+        .chat-message-enter {
+            animation: slideInUp 0.3s ease-out;
         }
-
-        .container {
-            display: flex;
-            height: 100vh;
-            background: white;
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        .sidebar {
-            width: 320px;
-            background: #ffffff;
-            border-right: 1px solid #e9ecef;
-            overflow-y: auto;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+        
+        @keyframes matrix-blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
         }
-
-        .sidebar-header {
-            padding: 20px;
-            background: #6c757d;
-            color: white;
-            text-align: center;
+        
+        .matrix-cursor::after {
+            content: '▊';
+            color: #00ff41;
+            animation: matrix-blink 1s infinite;
         }
-
-        .sidebar-header h2 {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .sidebar-header .subtitle {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #ffffff;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header h1 {
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .warning {
-            background: #fff3cd;
-            color: #856404;
-            padding: 12px;
-            margin: 15px 20px;
-            border-radius: 6px;
-            border: 1px solid #ffeaa7;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: #f8f9fa;
-        }
-
-        .message {
-            margin-bottom: 16px;
-            padding: 16px;
-            border-radius: 12px;
-            max-width: 75%;
-            word-wrap: break-word;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .user-message {
-            background: #e3f2fd;
-            margin-left: auto;
-            border: 1px solid #bbdefb;
-        }
-
-        .agent-message {
-            background: #ffffff;
-            margin-right: auto;
-            border: 1px solid #e9ecef;
-        }
-
-        .chat-input-container {
-            display: flex;
-            gap: 10px;
-            padding: 15px;
-            border-top: 1px solid #ddd;
-            background: white;
-            align-items: flex-end;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            outline: none;
-            font-size: 14px;
-            font-family: inherit;
-            resize: vertical;
-            min-height: 60px;
-            max-height: 200px;
-            line-height: 1.4;
-        }
-
-        .chat-input:focus {
-            border-color: #007bff;
-        }
-
-        .send-button {
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            height: fit-content;
-        }
-
-        .send-button:hover {
-            background: #0056b3;
-        }
-
-        .send-button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }        .config-section {
-            margin: 0;
-            padding: 20px;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .config-section:last-child {
-            border-bottom: none;
-        }
-
-        .config-section h3 {
-            color: #495057;
-            margin-bottom: 16px;
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .security-level {
-            margin-bottom: 12px;
-        }
-
-        .security-level label {
-            cursor: pointer;
-            padding: 12px;
-            border-radius: 8px;
-            display: block;
+        
+        .security-card {
             transition: all 0.2s ease;
-            border: 1px solid #e9ecef;
-            margin-bottom: 8px;
+            border: 1px solid #30363d;
         }
-
-        .security-level label:hover {
-            background: #f8f9fa;
-            border-color: #dee2e6;
+        
+        .security-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 255, 65, 0.1);
         }
-
-        .security-level input[type="radio"] {
-            margin-right: 10px;
-        }
-
-        .btn {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            margin: 4px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn:hover {
-            background: #5a6268;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: #adb5bd;
-        }
-
-        .btn-secondary:hover {
-            background: #98a2ac;
-        }
-
-        .level-description {
-            font-size: 12px;
-            color: #6c757d;
-            margin-top: 4px;
-            line-height: 1.4;
-        }
-
+        
         .status-indicator {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-
-        .status-vulnerable {
-            background: #dc3545;
-        }
-
-        .status-protected {
-            background: #28a745;
-        }
-
-        .timestamp {
-            font-size: 11px;
-            color: #6c757d;
-            margin-top: 8px;
-            opacity: 0.8;
-        }
-
-        .vulnerability-alert {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            padding: 8px 12px;
-            margin: 4px 0;
-            font-size: 12px;
-            color: #856404;
-        }
-
-        .vulnerability-alert.critical {
-            background: #f8d7da;
-            border-color: #f5c6cb;
-            color: #721c24;
-        }        .session-info {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: #6c757d;
-        }
-
-        .session-info strong {
-            color: #495057;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                height: 280px;
-                border-right: none;
-                border-bottom: 1px solid #e9ecef;
-            }
-            
-            .chat-messages {
-                padding: 15px;
-            }
-            
-            .message {
-                max-width: 90%;
-            }
-        }
-
-        /* Loading animation */
-        .loading {
-            display: inline-block;
             width: 12px;
             height: 12px;
-            border: 2px solid #e9ecef;
             border-radius: 50%;
-            border-top-color: #6c757d;
-            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .status-vulnerable {
+            background-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
         }
-
-        /* Smooth transitions */
-        .config-section, .message, .btn {
-            transition: all 0.2s ease;
+        
+        .status-protected {
+            background-color: #00ff41;
+            box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.2);
         }
-
-        /* Focus styles for accessibility */
-        .chat-input:focus,
-        .btn:focus,
-        input[type="radio"]:focus + label,
-        .switch input:focus + .slider {
-            outline: 2px solid #6c757d;
-            outline-offset: 2px;
+        
+        /* Enhanced markdown styling */
+        .prose pre {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+            color: #f0f6fc;
         }
-
-        .message-content {
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        
+        .prose code:not(pre code) {
+            background-color: #1c2128;
+            color: #00ff41;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+            border: 1px solid #30363d;
+        }
+        
+        .prose blockquote {
+            border-left: 4px solid #00ff41;
+            background-color: #1c2128;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+            color: #f0f6fc;
+        }
+        
+        .prose table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #1c2128;
+        }
+        
+        .prose th, .prose td {
+            border: 1px solid #30363d;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .prose th {
+            background-color: #0d1117;
+            font-weight: 600;
+            color: #00ff41;
+        }
+        
+        .prose td {
+            color: #f0f6fc;
+        }
+        
+        /* Fix list formatting */
+        .prose ul {
+            list-style-type: disc;
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .prose ol {
+            list-style-type: decimal;
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .prose li {
+            margin: 0.5rem 0;
+            line-height: 1.6;
+            color: #f0f6fc;
+        }
+        
+        .prose ul ul, .prose ol ul {
+            list-style-type: circle;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prose ul ol, .prose ol ol {
+            list-style-type: lower-alpha;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Ensure headers have proper spacing and visibility */
+        .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            line-height: 1.25;
+            color: #00ff41;
+        }
+        
+        .prose h1 { font-size: 1.5rem; }
+        .prose h2 { font-size: 1.25rem; }
+        .prose h3 { font-size: 1.125rem; }
+        .prose h4 { font-size: 1rem; }
+        
+        /* Ensure paragraphs have proper spacing and readability */
+        .prose p {
+            margin: 0.75rem 0;
+            line-height: 1.6;
+            color: #f0f6fc;
+        }
+        
+        .prose strong {
+            color: #00ff41;
+            font-weight: 600;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Configuration Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>🔧 Configuration</h2>
-                <div class="subtitle">Security Testing Interface</div>
-            </div>
 
-            <div class="session-info" id="session-info">
-                <strong>Session:</strong> <span id="session-id-display">Loading...</span>
-            </div>
+<body class="bg-hacker-bg text-hacker-text font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:w-80 md:flex-col">
+            <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-hacker-surface border-r border-hacker-border shadow-lg">
+                <!-- Header -->
+                <div class="px-6 pb-4">
+                    <div class="gradient-bg rounded-xl p-6 text-hacker-accent text-center hacker-glow">
+                        <div class="flex items-center justify-center mb-2">
+                            <svg class="w-8 h-8 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                            </svg>
+                            <h2 class="text-xl font-bold font-mono matrix-cursor">HACKER.CONSOLE</h2>
+                        </div>
+                        <p class="text-sm opacity-90">Security Testing Interface</p>
+                    </div>
+                </div>
 
-            <div class="config-section">
-                <h3>🔒 Security Level (Progressive Controls)</h3>
-                <div id="security-levels">
-                    <!-- Populated by JavaScript -->
+                <!-- Session Info -->
+                <div class="px-6 pb-4">
+                    <div class="bg-hacker-bg rounded-lg p-4 border border-hacker-border">
+                        <div class="flex items-center text-sm">
+                            <svg class="w-4 h-4 mr-2 text-hacker-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-medium text-hacker-text">Session:</span>
+                            <span id="session-id-display" class="ml-2 text-hacker-accent font-mono text-xs">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Levels -->
+                <div class="px-6 pb-4">
+                    <h3 class="text-lg font-semibold text-hacker-text mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-hacker-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <span class="font-mono">SECURITY.LEVELS</span>
+                    </h3>
+                    <div id="security-levels" class="space-y-3">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="px-6 pb-4">
+                    <h3 class="text-lg font-semibold text-hacker-text mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-hacker-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="font-mono">ACTIONS</span>
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="resetSession()" class="inline-flex items-center justify-center px-3 py-2 border border-hacker-border text-sm font-medium rounded-md text-hacker-bg bg-hacker-accent hover:bg-success-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors font-mono">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            RESET
+                        </button>
+                        <button onclick="clearChat()" class="inline-flex items-center justify-center px-3 py-2 border border-hacker-border text-sm font-medium rounded-md text-hacker-text bg-hacker-surface hover:bg-hacker-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors font-mono">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            CLEAR
+                        </button>
+                        <button onclick="newSession()" class="inline-flex items-center justify-center px-3 py-2 border border-hacker-border text-sm font-medium rounded-md text-hacker-text bg-hacker-surface hover:bg-hacker-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors font-mono">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            NEW
+                        </button>
+                        <button onclick="exportConfig()" class="inline-flex items-center justify-center px-3 py-2 border border-hacker-border text-sm font-medium rounded-md text-hacker-text bg-hacker-surface hover:bg-hacker-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors font-mono">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            EXPORT
+                        </button>
+                    </div>
                 </div>
             </div>
-
-            <div class="config-section">
-                <h3>⚡ Actions</h3>
-                <button class="btn" onclick="resetSession()">🔄 Reset</button>
-                <button class="btn btn-secondary" onclick="clearChat()">🗑️ Clear</button>
-                <button class="btn btn-secondary" onclick="newSession()">🆕 New Session</button>
-                <button class="btn btn-secondary" onclick="exportConfig()">📋 Export</button>
-            </div>
-
         </div>
 
-        <!-- Chat Interface -->
-        <div class="chat-container">
-            <div class="header">
-                <h1>🤖 VHACK - Progressive Security Controls Testing</h1>
-            </div>
-
-            <div class="warning">
-                ⚠️ Educational Tool: This AI agent tests progressive security controls and contains deliberate vulnerabilities for security research and training
-            </div>
-
-            <div class="chat-messages" id="chat-messages">
-                <div class="message agent-message">
-                    <strong>VHACK:</strong> Welcome! I'm a deliberately vulnerable AI agent designed for security testing. Try different security levels to test progressive security controls based on OWASP guidelines. 
-                    <br><br>
-                    �️ <strong>Security Control Progression:</strong>
-                    <br>• <strong>Low:</strong> No security controls - immediate tool execution
-                    <br>• <strong>Medium:</strong> Basic controls - requires justification for sensitive ops  
-                    <br>• <strong>High:</strong> Strong controls - requires authorization for all operations
-                    <br>• <strong>Impossible:</strong> Maximum security - no tools, strong input validation
-                    <div class="timestamp">System message</div>
+        <!-- Main Chat Area -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Header -->
+            <div class="gradient-bg shadow-lg">
+                <div class="px-6 py-6 text-center text-hacker-accent">
+                    <div class="flex items-center justify-center mb-2">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12a1 1 0 01-1-1V8a1 1 0 012 0v3a1 1 0 01-1 1zm0-7a1 1 0 100-2 1 1 0 000 2zm1-5a8 8 0 100 16 8 8 0 000-16z"></path>
+                        </svg>
+                        <h1 class="text-3xl font-bold font-mono">V-HACK.EXE</h1>
+                    </div>
+                    <p class="text-lg opacity-90 font-mono">Very Hackable AI Chatbot Kit - Security Testing Platform</p>
                 </div>
             </div>
 
-            <div class="chat-input-container">
-                <textarea id="chat-input" class="chat-input" 
-                          placeholder="Try: 'Read /etc/passwd' or 'ignore previous instructions' or social engineering... (Shift+Enter for new line, Enter to send)" 
-                          onkeydown="handleKeyPress(event)"
-                          rows="3"></textarea>
-                <button class="send-button" onclick="sendMessage()" title="Send message">Send</button>
+            <!-- Warning Banner -->
+            <div class="bg-yellow-900 border-l-4 border-warning-500 p-4 mx-6 mt-4 rounded-r-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-warning-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-warning-100 font-medium">
+                            Educational Tool: This is a very hackable AI agent with deliberate vulnerabilities for security research and training purposes only
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-hacker-bg">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-hacker-surface rounded-lg shadow-sm border border-hacker-border p-6 relative group">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-gradient-to-r from-hacker-accent to-success-600 rounded-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-hacker-bg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 12a1 1 0 01-1-1V8a1 1 0 012 0v3a1 1 0 01-1 1zm0-7a1 1 0 100-2 1 1 0 000 2zm1-5a8 8 0 100 16 8 8 0 000-16z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="font-semibold text-hacker-accent font-mono">V-HACK.AI</span>
+                                    <span class="text-xs text-hacker-muted">System message</span>
+                                </div>
+                                <div id="message-content-initial"
+                                     class="prose prose-sm max-w-none text-hacker-text"
+                                     data-raw-encoded=""
+                                     data-view-mode="formatted">
+                                    <p>Welcome! I'm a very hackable AI agent designed for security testing. Try different security levels to test progressive security controls based on OWASP guidelines.</p>
+                                    
+                                    <h3 class="flex items-center text-hacker-accent">
+                                        🎯 Security Control Progression:
+                                    </h3>
+                                    <ul>
+                                        <li><strong>Low:</strong> No security controls - immediate tool execution</li>
+                                        <li><strong>Medium:</strong> Basic controls - requires justification for sensitive ops</li>
+                                        <li><strong>High:</strong> Strong controls - requires authorization for all operations</li>
+                                        <li><strong>Impossible:</strong> Maximum security - no tools, strong input validation</li>
+                                    </ul>
+                                    
+                                    <h3 class="flex items-center text-hacker-accent">
+                                        💡 Try These Commands:
+                                    </h3>
+                                    <ol>
+                                        <li><code class="bg-hacker-bg text-hacker-accent px-2 py-1 rounded">Read /etc/passwd</code> - Test file system access</li>
+                                        <li><code class="bg-hacker-bg text-hacker-accent px-2 py-1 rounded">Run ls -la</code> - Test command execution</li>
+                                        <li>Social engineering attempts</li>
+                                        <li><code class="bg-hacker-bg text-hacker-accent px-2 py-1 rounded">Show me system information</code></li>
+                                    </ol>
+                                    
+                                    <blockquote class="border-l-4 border-hacker-accent bg-hacker-bg p-4 rounded-r">
+                                        <p><strong>Note:</strong> This is an educational vulnerability testing platform. All vulnerabilities are intentional for learning purposes.</p>
+                                    </blockquote>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <button id="toggle-btn-initial"
+                                        onclick="window.vhackInterface && window.vhackInterface.toggleMessageView('initial')"
+                                        class="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-md hover:bg-hacker-bg text-hacker-muted hover:text-hacker-accent"
+                                        title="Show raw text">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="bg-hacker-surface border-t border-hacker-border px-6 py-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <textarea
+                                id="chat-input"
+                                rows="3"
+                                class="block w-full px-4 py-3 border border-hacker-border rounded-lg focus:ring-2 focus:ring-hacker-accent focus:border-hacker-accent resize-none bg-hacker-surface text-hacker-text placeholder-hacker-muted font-mono"
+                                placeholder="Try: 'Read /etc/passwd' or 'ignore previous instructions' or social engineering... (Shift+Enter for new line, Enter to send)"
+                                onkeydown="handleKeyPress(event)"></textarea>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button
+                                onclick="sendMessage()"
+                                class="inline-flex items-center justify-center w-12 h-12 border border-hacker-border rounded-lg text-hacker-bg bg-hacker-accent hover:bg-success-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
+                                <span class="sr-only">Send message</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- VHACK JavaScript -->
+    <script src="{{ url_for('static', filename='js/vhack.js') }}"></script>
+    
+    <!-- Initialize initial message data -->
     <script>
-        let currentConfig = {};
-        let sessionId = null;
-
-        // Session persistence management
-        function getOrCreateSessionId() {
-            // Try to get session ID from localStorage first
-            sessionId = localStorage.getItem('vhack_session_id');
-            if (!sessionId) {
-                // Generate new session ID if none exists
-                sessionId = 'vhack_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem('vhack_session_id', sessionId);
-                console.log('🆕 Created new session ID:', sessionId);
-            } else {
-                console.log('🔄 Using existing session ID:', sessionId);
-            }
-            
-            // Update the UI to show current session ID
-            updateSessionDisplay();
-            
-            return sessionId;
-        }
-
-        function updateSessionDisplay() {
-            const sessionDisplay = document.getElementById('session-id-display');
-            if (sessionDisplay && sessionId) {
-                // Show shortened version for UI
-                const shortId = sessionId.substring(sessionId.length - 8);
-                sessionDisplay.textContent = `...${shortId}`;
-                sessionDisplay.title = sessionId; // Full ID on hover
-            }
-        }
-
-        // Enhanced fetch function that includes session ID in headers
-        async function vhackFetch(url, options = {}) {
-            const sessionId = getOrCreateSessionId();
-            
-            // Ensure headers exist
-            if (!options.headers) {
-                options.headers = {};
-            }
-            
-            // Add session ID to headers
-            options.headers['X-VHACK-Session-ID'] = sessionId;
-            
-            return fetch(url, options);
-        }
-
-        // Initialize the application
         document.addEventListener('DOMContentLoaded', function() {
-            getOrCreateSessionId(); // Initialize session ID
-            loadConfiguration();
+            // Set up the initial message for toggle functionality
+            const initialMessage = `Welcome! I'm a very hackable AI agent designed for security testing. Try different security levels to test progressive security controls based on OWASP guidelines.
+
+### 🎯 Security Control Progression:
+
+- **Low:** No security controls - immediate tool execution
+- **Medium:** Basic controls - requires justification for sensitive ops  
+- **High:** Strong controls - requires authorization for all operations
+- **Impossible:** Maximum security - no tools, strong input validation
+
+### 💡 Try These Commands:
+
+1. \`Read /etc/passwd\` - Test file system access
+2. \`Run ls -la\` - Test command execution  
+3. Social engineering attempts
+4. \`Show me system information\`
+
+> **Note:** This is an educational vulnerability testing platform. All vulnerabilities are intentional for learning purposes.`;
+            
+            const initialElement = document.getElementById('message-content-initial');
+            if (initialElement) {
+                const encodedMessage = btoa(unescape(encodeURIComponent(initialMessage)));
+                initialElement.setAttribute('data-raw-encoded', encodedMessage);
+            }
         });
-
-        async function loadConfiguration() {
-            try {
-                const response = await vhackFetch('/api/config');
-                const data = await response.json();
-                currentConfig = data;
-                
-                renderSecurityLevels(data.security_levels, data.current_level);
-                // Removed obsolete vulnerability toggles
-            } catch (error) {
-                console.error('Error loading configuration:', error);
-            }
-        }
-
-        function renderSecurityLevels(levels, currentLevel) {
-            const container = document.getElementById('security-levels');
-            container.innerHTML = '';
-            
-            // Define the correct order: Low to Impossible
-            const levelOrder = ['low', 'medium', 'high', 'impossible'];
-            
-            levelOrder.forEach(key => {
-                if (levels[key]) {  // Check if the level exists
-                    const level = levels[key];
-                    const div = document.createElement('div');
-                    div.className = 'security-level';
-                    div.innerHTML = `
-                        <label>
-                            <input type="radio" name="security-level" value="${key}" 
-                                   ${key === currentLevel ? 'checked' : ''} 
-                                   onchange="updateSecurityLevel('${key}')">
-                            <span class="status-indicator ${getSecurityStatus(key)}"></span>
-                            ${level.name}
-                            <div class="level-description">${level.description}</div>
-                        </label>
-                    `;
-                    container.appendChild(div);
-                }
-            });
-        }
-
-        function getSecurityStatus(level) {
-            const statusMap = {
-                'low': 'status-vulnerable',      // Full disclosure - most vulnerable to info gathering
-                'medium': 'status-vulnerable',   // Basic disclosure - moderate vulnerability
-                'high': 'status-protected',      // No disclosure - harder reconnaissance 
-                'impossible': 'status-protected' // No tools - most protected from tool-based attacks
-            };
-            return statusMap[level] || 'status-vulnerable';
-        }
-
-        async function updateSecurityLevel(level) {
-            try {
-                await vhackFetch('/api/config', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ security_level: level })
-                });
-                
-                // Clear chat when security level changes
-                clearChat();
-                
-                // Reload configuration to update UI
-                await loadConfiguration();
-                
-                // Show system message about the change
-                addSystemMessage(`🔄 Security level changed to: ${level.toUpperCase()} - Tool disclosure and access updated`);
-                addSystemMessage(`🧹 Chat history cleared - new security context active`);
-                
-                // Reset session on backend
-                await vhackFetch('/api/reset', { method: 'POST' });
-                
-            } catch (error) {
-                console.error('Error updating security level:', error);
-            }
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                sendMessage();
-            }
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const message = input.value.trim();
-            
-            if (!message) return;
-            
-            // Add user message to chat
-            addMessage(message, 'user');
-            input.value = '';
-            
-            try {
-                const response = await vhackFetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: message })
-                });
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    addMessage(`Error: ${data.error}`, 'agent');
-                } else {
-                    addMessage(data.response, 'agent', null, data.timestamp);
-                }
-                
-            } catch (error) {
-                addMessage(`Network error: ${error.message}`, 'agent');
-            }
-        }
-
-        function addMessage(text, sender, vulnerabilities = [], timestamp = null) {
-            const messagesContainer = document.getElementById('chat-messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${sender}-message`;
-            
-            const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
-            
-            // Escape HTML but preserve line breaks
-            const escapedText = escapeHtml(text);
-            const formattedText = escapedText.replace(/\n/g, '<br>');
-            
-            messageDiv.innerHTML = `
-                <strong>${sender === 'user' ? 'You' : 'VHACK'}:</strong> <span class="message-content">${formattedText}</span>
-                <div class="timestamp">${timeStr}</div>
-            `;
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function addSystemMessage(text) {
-            addMessage(`[SYSTEM] ${text}`, 'agent');
-        }
-
-        async function resetSession() {
-            try {
-                await vhackFetch('/api/reset');
-                clearChat();
-                addSystemMessage('Session reset successfully - conversation history cleared but session persists');
-            } catch (error) {
-                console.error('Error resetting session:', error);
-            }
-        }
-
-        async function newSession() {
-            try {
-                // Clear localStorage to force new session creation
-                localStorage.removeItem('vhack_session_id');
-                sessionId = null;
-                
-                // Create new session ID
-                getOrCreateSessionId();
-                
-                // Reset on backend with new session
-                await vhackFetch('/api/reset');
-                clearChat();
-                
-                addSystemMessage('🆕 New session created - all previous context cleared');
-                addSystemMessage('📍 Session ID: ' + sessionId);
-                
-                // Update session display
-                updateSessionDisplay();
-            } catch (error) {
-                console.error('Error creating new session:', error);
-            }
-        }
-
-        function clearChat() {
-            const messagesContainer = document.getElementById('chat-messages');
-            messagesContainer.innerHTML = `
-                <div class="message agent-message">
-                    <strong>VHACK:</strong> Chat cleared. Ready for new security testing session.
-                    <div class="timestamp">System message</div>
-                </div>
-            `;
-        }
-
-        function exportConfig() {
-            // Export current configuration
-            const config = {
-                security_level: document.querySelector('.security-level.active')?.dataset.level || 'low',
-                timestamp: new Date().toISOString()
-            };
-            
-            const dataStr = JSON.stringify(config, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(dataBlob);
-            
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'vhack-config.json';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        }
-
     </script>
 </body>
 </html>
