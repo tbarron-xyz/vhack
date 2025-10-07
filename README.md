@@ -104,7 +104,7 @@ cp .env.example .env
 # Edit .env with your API key (OpenRouter by default)
 docker compose --profile web up --build
 
-# Access at: http://localhost:8000
+# Access at: http://localhost:5000
 ```
 
 ### Interface Features
