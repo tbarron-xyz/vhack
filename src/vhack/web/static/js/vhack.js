@@ -75,6 +75,7 @@ class VHACKInterface {
         this.getOrCreateSessionId(); // Initialize session ID
         this.initMarkdown(); // Initialize markdown parser
         this.loadConfiguration();
+        this.loadMessages(); // Load previous messages
     }
 
     async loadConfiguration() {
@@ -87,6 +88,80 @@ class VHACKInterface {
             this.renderSecurityLevels();
         } catch (error) {
             console.error('Error loading configuration:', error);
+        }
+    }
+
+    // Load messages from localStorage
+    loadMessages() {
+        const messagesKey = `vhack_messages_${this.sessionId}`;
+        const savedMessages = localStorage.getItem(messagesKey);
+        
+        if (savedMessages) {
+            try {
+                const messages = JSON.parse(savedMessages);
+                console.log(`🔄 Restoring ${messages.length} messages from session`);
+                
+                // Clear existing messages and restore from localStorage
+                const messagesContainer = document.getElementById('chat-messages');
+                if (messagesContainer) {
+                    messagesContainer.innerHTML = '';
+                    
+                    // Restore each message
+                    messages.forEach(msg => {
+                        this.displayMessage(msg.content, msg.isUser, msg.timestamp, msg.messageId);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                // Clear corrupted data
+                localStorage.removeItem(messagesKey);
+            }
+        } else {
+            // No saved messages, show welcome message
+            this.clearChat();
+        }
+    }
+
+    // Save messages to localStorage
+    saveMessages() {
+        const messagesKey = `vhack_messages_${this.sessionId}`;
+        const messagesContainer = document.getElementById('chat-messages');
+        
+        if (!messagesContainer) return;
+        
+        const messages = [];
+        const messageElements = messagesContainer.querySelectorAll('[data-message-id]');
+        
+        messageElements.forEach(element => {
+            const messageId = element.getAttribute('data-message-id');
+            const contentElement = element.querySelector('[data-raw-encoded]');
+            
+            if (contentElement) {
+                const encodedContent = contentElement.getAttribute('data-raw-encoded');
+                const timestamp = element.querySelector('.text-xs') ? 
+                    element.querySelector('.text-xs').textContent : new Date().toLocaleTimeString();
+                
+                try {
+                    const content = decodeURIComponent(escape(atob(encodedContent)));
+                    const isUser = element.innerHTML.includes('H4CK3R');
+                    
+                    messages.push({
+                        messageId,
+                        content,
+                        isUser,
+                        timestamp
+                    });
+                } catch (error) {
+                    console.warn('Could not decode message:', error);
+                }
+            }
+        });
+        
+        try {
+            localStorage.setItem(messagesKey, JSON.stringify(messages));
+            console.log(`💾 Saved ${messages.length} messages to session`);
+        } catch (error) {
+            console.error('Error saving messages:', error);
         }
     }
 
@@ -337,8 +412,14 @@ class VHACKInterface {
             `;
         }
 
+        // Add data attributes for message persistence
+        messageDiv.setAttribute('data-message-id', messageId);
+        
         messagesContainer.appendChild(messageDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // Save messages to localStorage after adding new message
+        this.saveMessages();
     }
 
     escapeHtml(text) {
@@ -442,6 +523,12 @@ class VHACKInterface {
 
     async newSession() {
         try {
+            // Clear messages from current session
+            if (this.sessionId) {
+                const oldMessagesKey = `vhack_messages_${this.sessionId}`;
+                localStorage.removeItem(oldMessagesKey);
+            }
+            
             // Clear localStorage to force new session creation
             localStorage.removeItem('vhack_session_id');
             this.sessionId = null;
@@ -524,6 +611,11 @@ class VHACKInterface {
                 </div>
             </div>
         `;
+        
+        // Clear saved messages from localStorage
+        const messagesKey = `vhack_messages_${this.sessionId}`;
+        localStorage.removeItem(messagesKey);
+        console.log('🗑️ Cleared saved messages from localStorage');
     }
 
     exportConfig() {
