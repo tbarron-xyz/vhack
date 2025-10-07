@@ -5,8 +5,16 @@ Tests for the AI Agent configuration loader.
 import pytest
 import tempfile
 import os
+import sys
 from pathlib import Path
-from config_loader import ConfigLoader
+
+# Add src directory to Python path for testing
+test_dir = Path(__file__).parent
+project_root = test_dir.parent
+src_dir = project_root / "src"
+sys.path.insert(0, str(src_dir))
+
+from vhack.config.config_loader import ConfigLoader
 
 
 def test_config_loader_basic():

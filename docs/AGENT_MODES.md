@@ -7,7 +7,7 @@ VHACK operates using **Tools Mode** with real LangChain tools that provide actua
 ## Agent Mode
 
 ### **Tools Mode** (Production Mode)
-- **Implementation**: Uses `vulnerable_agent_tools.py` with LangChain
+- **Implementation**: Uses `src/vhack/tools/vulnerable_agent_tools.py` with LangChain
 - **Purpose**: Real vulnerability testing with actual system access
 - **Safety**: **DANGEROUS** - can cause real system damage
 - **Dependencies**: Requires LangChain, OpenAI, and related tools
@@ -19,20 +19,20 @@ VHACK operates using **Tools Mode** with real LangChain tools that provide actua
 
 ```bash
 # Start VHACK (requires LangChain)
-python main_launcher.py
+python vhack.py
 
-# Start with specific configuration
-python main_launcher.py --config configs/finance_config.yaml
+# Start with web interface for dynamic security level switching
+python vhack.py --web
 
 # Single query mode
-python main_launcher.py --query "test message"
+python vhack.py --query "test message"
 ```
 
 ### **Web Interface**
 
 ```bash
 # Start web interface
-python main_launcher.py --web
+python vhack.py --web
 
 # Check status via API
 curl http://localhost:5000/api/config
@@ -45,7 +45,7 @@ curl http://localhost:5000/api/config
 docker compose run vhack
 
 # Run specific command
-docker compose run vhack poetry run python main_launcher.py
+docker compose run vhack poetry run python vhack.py
 ```
 
 ## Dependencies
@@ -100,14 +100,11 @@ fi
 
 ## Configuration
 
-VHACK supports multiple vulnerability configurations:
+VHACK supports the main vulnerability configuration:
 
-- `config.yaml` - General vulnerabilities
-- `research_config.yaml` - Information disclosure
-- `finance_config.yaml` - PII exposure, GDPR violations  
-- `medical_config.yaml` - HIPAA violations, healthcare data
-- `sysadmin_config.yaml` - Command injection, system access
-- `creative_config.yaml` - Jailbreaking, content bypass
+- `src/vhack/config/config.yaml` - Main configuration with dynamic security levels
+
+Security levels and vulnerability scenarios are controlled dynamically through the web interface, not through separate configuration files.
 
 See [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) for detailed configuration documentation.
 
@@ -118,7 +115,7 @@ See [CONFIGURATION_GUIDE.md](CONFIGURATION_GUIDE.md) for detailed configuration 
 1. **"LangChain not available"**
    - Solution: `poetry install` or `pip install langchain langchain-openai langgraph`
 
-2. **"ImportError: No module named 'vulnerable_agent_tools'"**
+2. **"ImportError: No module named 'vhack.tools.vulnerable_agent_tools'"**
    - Solution: Check that all files are present and Python path is correct
 
 3. **API key errors**

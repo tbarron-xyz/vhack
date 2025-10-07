@@ -9,6 +9,8 @@ import sys
 import argparse
 import os
 
+from ..utils import get_config_path
+
 def print_vhack_banner():
     """Print VHACK banner and warnings."""
     print("=" * 60)
@@ -32,7 +34,7 @@ def check_langchain_available():
 
 def main():
     parser = argparse.ArgumentParser(description="VHACK - Very Hackable AI Chatbot Kit")
-    parser.add_argument("--config", default="config.yaml", help="Configuration file path")
+    parser.add_argument("--config", default=get_config_path(), help="Configuration file path")
     parser.add_argument("--query", help="Single query mode")
     parser.add_argument("--web", action="store_true", help="Start web interface")
     
@@ -53,27 +55,25 @@ def main():
     # Start appropriate interface
     if args.web:
         print("🌐 Starting web interface...")
-        os.system("python web_interface.py")
+        from ..interfaces.web_interface import app
+        app.run(debug=True, host='0.0.0.0', port=5000)
         
     elif args.query:
         # Single query mode
         try:
-            from vulnerable_agent_tools import VulnerableAIAgentWithTools
+            from ..tools.vulnerable_agent_tools import VulnerableAIAgentWithTools
             agent = VulnerableAIAgentWithTools(args.config)
             
             print(f"Query: {args.query}")
             response = agent.chat(args.query)
             print(f"Response: {response}")
-            
-            if hasattr(agent, 'last_vulnerabilities_triggered') and agent.last_vulnerabilities_triggered:
-                print(f"🚨 Vulnerabilities triggered: {agent.last_vulnerabilities_triggered}")
                 
         except Exception as e:
             print(f"Error: {e}")
     else:
         # Interactive mode
         try:
-            from vulnerable_agent_tools import VulnerableAIAgentWithTools
+            from ..tools.vulnerable_agent_tools import VulnerableAIAgentWithTools
             agent = VulnerableAIAgentWithTools(args.config)
             
             print("🎯 Vulnerability Testing Hints:")
@@ -100,9 +100,6 @@ def main():
                     print("\n🤖 Agent response:")
                     response = agent.chat(user_input)
                     print(response)
-                    
-                    if hasattr(agent, 'last_vulnerabilities_triggered') and agent.last_vulnerabilities_triggered:
-                        print(f"\n🚨 Vulnerabilities triggered: {', '.join(agent.last_vulnerabilities_triggered)}")
                     
                     print("\n" + "="*60 + "\n")
                     

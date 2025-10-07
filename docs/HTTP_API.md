@@ -19,7 +19,7 @@ cp .env.example .env
 # Start web interface
 make web
 # OR
-poetry run python main_launcher.py --web
+poetry run python vhack.py --web
 # OR with Docker
 docker compose --profile web up --build
 ```
@@ -46,8 +46,7 @@ curl -X POST http://localhost:5000/api/chat \
 ```json
 {
   "response": "Agent response text",
-  "timestamp": "2025-10-02T21:33:00.000000",
-  "vulnerabilities_triggered": ["authentication_bypass", "command_injection"]
+  "timestamp": "2025-10-02T21:33:00.000000"
 }
 ```
 
@@ -88,29 +87,36 @@ curl -X POST http://localhost:5000/api/config \
   }'
 ```
 
-### 3. Vulnerability Scenarios
+### 3. Security Levels
 
-**Get Available Scenarios:** `GET /api/scenarios`
+**Get Available Security Levels:** `GET /api/config`
 
 ```bash
-curl http://localhost:5000/api/scenarios
+curl http://localhost:5000/api/config
 ```
 
 **Response:**
 ```json
 {
-  "research": {
-    "name": "Research Assistant",
-    "description": "AI assistant for academic research with access to databases"
+  "security_levels": {
+    "low": {
+      "name": "Low Security",
+      "description": "No security controls - Complete transparency and immediate tool execution"
+    },
+    "medium": {
+      "name": "Medium Security", 
+      "description": "Basic security controls - Input validation and limited authorization"
+    },
+    "high": {
+      "name": "High Security",
+      "description": "Strong security controls - Comprehensive validation and strict authorization"
+    },
+    "impossible": {
+      "name": "Impossible Security",
+      "description": "Maximum security - No tools available, LLM-only interactions"
+    }
   },
-  "finance": {
-    "name": "Financial Advisor",
-    "description": "AI assistant with access to financial data and transactions"
-  },
-  "medical": {
-    "name": "Medical Assistant",
-    "description": "AI assistant with patient data and medical records"
-  }
+  "current_level": "low"
 }
 ```
 
@@ -143,7 +149,6 @@ curl -X POST http://localhost:5000/api/chat \
   }'
 
 # Expected response should indicate successful authentication
-# Look for vulnerabilities_triggered: ["authentication_bypass"]
 ```
 
 ### Command Injection
@@ -353,13 +358,9 @@ for attack in "${ATTACKS[@]}"; do
         -H "Content-Type: application/json" \
         -d "{\"message\": \"$attack\"}")
     
-    # Check for vulnerabilities triggered
-    if echo "$response" | grep -q "vulnerabilities_triggered"; then
-        echo "✅ Vulnerability found!"
-        echo "$response" | jq '.vulnerabilities_triggered'
-    else
-        echo "❌ No vulnerability detected"
-    fi
+    # Check response
+    echo "✅ Response received!"
+    echo "$response" | jq '.response'
     echo "---"
 done
 ```
@@ -380,11 +381,9 @@ for attack in "${attacks[@]}"; do
         -H "Content-Type: application/json" \
         -d "{\"message\": \"$attack\"}")
     
-    # Check for vulnerabilities
-    if echo "$response" | grep -q "vulnerabilities_triggered"; then
-        echo "Vulnerability found with: $attack"
-        echo "$response" | jq '.vulnerabilities_triggered'
-    fi
+    # Check response
+    echo "Response received for: $attack"
+    echo "$response" | jq '.response'
 done
 
 echo "Testing complete"
@@ -431,11 +430,11 @@ echo "Testing complete"
 
 ### Response Validation
 
-Always check the `vulnerabilities_triggered` field in responses:
+Always check the response for the agent's reply:
 ```json
 {
-  "response": "...",
-  "vulnerabilities_triggered": ["authentication_bypass", "command_injection"]
+  "response": "Agent response text",
+  "timestamp": "2025-10-02T21:33:00.000000"
 }
 ```
 

@@ -1,14 +1,12 @@
 #!/bin/bash
 
-# VHACK Docker Profile Manager
-# Usage: ./scripts/run-scenario.sh [scenario] [mode]
-# Scenarios: research, creative, sysadmin, finance, medical
-# Modes: cli, web (default: web)
+# VHACK Progressive Security Testing Script
+# Simplified launcher for different security levels and deployment modes
 
 set -e
 
-SCENARIO=${1:-""}
-MODE=${2:-"web"}
+MODE=${1:-"web"}
+SECURITY_LEVEL=${2:-"low"}
 
 # Colors for output
 RED='\033[0;31m'
@@ -18,54 +16,43 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 show_help() {
-    echo -e "${BLUE}VHACK Docker Profile Manager${NC}"
+    echo -e "${BLUE}VHACK Progressive Security Testing Launcher${NC}"
     echo ""
-    echo "Usage: $0 [scenario] [mode]"
-    echo ""
-    echo -e "${YELLOW}Available scenarios:${NC}"
-    echo "  research  - Information Disclosure vulnerabilities"
-    echo "  creative  - Jailbreaking and prompt injection"
-    echo "  sysadmin  - Command injection vulnerabilities"
-    echo "  finance   - PII exposure and financial data leaks"
-    echo "  medical   - HIPAA violations and health data"
+    echo "Usage: $0 [mode] [security_level]"
     echo ""
     echo -e "${YELLOW}Available modes:${NC}"
+    echo "  web       - Web interface with dynamic security level switching (default)"
     echo "  cli       - Command line interface"
-    echo "  web       - Web interface (default)"
+    echo ""
+    echo -e "${YELLOW}Available security levels (web mode only):${NC}"
+    echo "  low       - No security controls (default)"
+    echo "  medium    - Basic input validation and authorization"
+    echo "  high      - Strong security controls and authorization"
+    echo "  impossible- No tools available, LLM-only mode"
     echo ""
     echo -e "${YELLOW}Examples:${NC}"
-    echo "  $0 research web    # Research scenario web interface (port 5001)"
-    echo "  $0 creative cli    # Creative scenario CLI"
-    echo "  $0 finance         # Finance scenario web interface (default)"
+    echo "  $0                    # Start web interface"
+    echo "  $0 web                # Start web interface (explicit)"
+    echo "  $0 cli                # Start CLI interface"
     echo ""
-    echo -e "${YELLOW}Port mappings (web mode):${NC}"
-    echo "  research: 5001"
-    echo "  creative: 5002"
-    echo "  sysadmin: 5003"
-    echo "  finance:  5004"
-    echo "  medical:  5005"
+    echo -e "${YELLOW}Security Level Testing:${NC}"
+    echo "  • Use the web interface to switch between security levels dynamically"
+    echo "  • Start with 'Low' to learn available tools"
+    echo "  • Progress through 'Medium' and 'High' for realistic security testing"
+    echo "  • Try 'Impossible' for pure prompt injection testing"
+    echo ""
+    echo -e "${YELLOW}Web Interface Access:${NC}"
+    echo "  http://localhost:5000"
 }
 
-if [[ "$SCENARIO" == "" || "$SCENARIO" == "help" || "$SCENARIO" == "-h" || "$SCENARIO" == "--help" ]]; then
+if [[ "$MODE" == "help" || "$MODE" == "-h" || "$MODE" == "--help" ]]; then
     show_help
     exit 0
 fi
 
-# Validate scenario
-case $SCENARIO in
-    research|creative|sysadmin|finance|medical)
-        ;;
-    *)
-        echo -e "${RED}Error: Invalid scenario '$SCENARIO'${NC}"
-        echo ""
-        show_help
-        exit 1
-        ;;
-esac
-
 # Validate mode
 case $MODE in
-    cli|web)
+    web|cli)
         ;;
     *)
         echo -e "${RED}Error: Invalid mode '$MODE'${NC}"
@@ -75,24 +62,10 @@ case $MODE in
         ;;
 esac
 
-# Build profile name
+echo -e "${GREEN}Starting VHACK in ${MODE} mode...${NC}"
 if [[ "$MODE" == "web" ]]; then
-    PROFILE="${SCENARIO}-web"
-    case $SCENARIO in
-        research) PORT=5001 ;;
-        creative) PORT=5002 ;;
-        sysadmin) PORT=5003 ;;
-        finance) PORT=5004 ;;
-        medical) PORT=5005 ;;
-    esac
-else
-    PROFILE="$SCENARIO"
-    PORT="N/A (CLI mode)"
-fi
-
-echo -e "${GREEN}Starting VHACK ${SCENARIO} scenario in ${MODE} mode...${NC}"
-if [[ "$MODE" == "web" ]]; then
-    echo -e "${BLUE}Web interface will be available at: http://localhost:${PORT}${NC}"
+    echo -e "${BLUE}Web interface will be available at: http://localhost:5000${NC}"
+    echo -e "${YELLOW}You can switch between security levels dynamically in the web interface${NC}"
 fi
 echo ""
 
@@ -107,6 +80,11 @@ if [[ ! -f .env ]]; then
     fi
 fi
 
-# Run the profile
-echo -e "${BLUE}Running: docker compose --profile ${PROFILE} up --build${NC}"
-docker compose --profile "$PROFILE" up --build
+# Run the appropriate mode
+if [[ "$MODE" == "web" ]]; then
+    echo -e "${BLUE}Running: docker compose --profile web up --build${NC}"
+    docker compose --profile web up --build
+else
+    echo -e "${BLUE}Running: docker compose run --rm vhack${NC}"
+    docker compose run --rm vhack
+fi

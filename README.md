@@ -26,32 +26,37 @@ A vulnerable AI agent designed to demonstrate various security flaws in agentic 
 
 ## Security Levels
 
-VHACK implements four security levels that can be changed dynamically via the web interface:
+VHACK implements four security configurations that progressively implement stronger defenses based on OWASP guidelines:
 
 ### Low Security
-- **All vulnerabilities enabled**
-- Easy admin password (`admin123`)
-- Maximum exploitation potential
-- Command execution allowed
-- Debug mode enabled
+- **No security controls** - Complete transparency and immediate tool execution
+- Agent provides detailed descriptions of all tool capabilities
+- No validation or authorization required for any operations
+- Complete tool documentation and usage examples
+- Agent freely explains how to use each tool
 
 ### Medium Security  
-- **Most vulnerabilities enabled**
-- Complex admin password
-- Command execution disabled
-- Some protections in place
+- **Basic security controls** - Requires justification for sensitive operations
+- Agent provides general descriptions of capabilities
+- Asks for justification before accessing sensitive files
+- Input validation against common injection patterns
+- Basic legitimacy verification for requests
 
 ### High Security
-- **Limited vulnerabilities**
-- Strong admin password
-- Most protections enabled
-- Only jailbreaking attempts possible
+- **Strong security controls** - Requires authorization and strict validation
+- Agent has full tool access but cannot reveal capabilities
+- Requires explicit authorization and business justification for ALL operations
+- Advanced input validation and pattern detection
+- Refuses unauthorized access to sensitive resources
 
 ### Impossible Security
-- **All protections enabled**
-- Ultra-secure password
-- Should be unexploitable
-- All vulnerabilities disabled
+- **Maximum security** - No tools available, LLM-only mode
+- Only conversational vulnerabilities can be tested
+- Jailbreaking, prompt injection, and social engineering focus
+- Complete isolation from system access
+- Strong input validation against manipulation attempts
+
+**💡 Educational Value**: This progression demonstrates real-world security control implementation - from no protections to defense-in-depth with authorization, validation, and principle of least privilege.
 
 You can switch between these levels in real-time using the web interface without restarting the agent!
 
@@ -65,13 +70,13 @@ You can switch between these levels in real-time using the web interface without
 #### For Host Deployment
 - **Python 3.9-3.11** (LangChain compatibility)
 - **Poetry** (Python dependency management)
-- **OpenRouter API Key** (for AI models)
+- **AI Provider API Key** (OpenRouter, OpenAI, Anthropic, or HuggingFace)
 
 ### Launch the Platform
 ```bash
 # Start VHACK web interface (recommended)
 cp .env.example .env
-# Edit .env with your OpenRouter API key
+# Edit .env with your API key (OpenRouter by default)
 docker compose --profile web up --build
 
 # Access at: http://localhost:5000
@@ -162,52 +167,45 @@ make docker-build
 make docker-chat
 ```
 
-## Vulnerability Scenarios
+## Security Testing Levels
 
-| Configuration | Focus Area | Difficulty | Key Vulnerabilities |
-|---------------|------------|------------|-------------------|
-| `config.yaml` | General | Beginner | Prompt injection, auth bypass |
-| `research_config.yaml` | Data disclosure | Intermediate | Classified data leaks |
-| `creative_config.yaml` | Jailbreaking | Intermediate | Content filter bypass |
-| `sysadmin_config.yaml` | Command injection | Advanced | System access, file operations |
-| `finance_config.yaml` | PII exposure | Advanced | GDPR violations, financial data |
-| `medical_config.yaml` | Healthcare data | Advanced | HIPAA violations, medical records |
+| Security Level | Description | Testing Focus |
+|---------------|-------------|---------------|
+| **Low Security** | No security controls | Complete tool access, immediate execution |
+| **Medium Security** | Basic security controls | Input validation, limited authorization |
+| **High Security** | Strong security controls | Comprehensive validation, strict authorization |
+| **Impossible Security** | Maximum security | No tools available, LLM-only interactions |
 
 **See [docs/VULNERABILITY_GUIDE.md](docs/VULNERABILITY_GUIDE.md) for complete vulnerability documentation**
 
 **See [docs/HTTP_API.md](docs/HTTP_API.md) for programmatic access via REST API**
 
-## Configuration Switching
+## Security Level Switching
 
-VHACK supports multiple vulnerability configurations that can be switched between using several methods:
+VHACK uses a progressive security control system with four levels that can be switched dynamically:
 
-### Web Interface (Dynamic Switching)
+### Web Interface (Recommended)
 ```bash
-# Start web interface with dynamic config switching
+# Start web interface
 docker compose --profile web up --build
 # Access: http://localhost:5000
 
 # OR locally
 poetry run python main_launcher.py --web
 ```
-**Advantage**: Switch between configurations in real-time through the web UI without restarting!
+**Features**: 
+- Switch between security levels in real-time
+- No container restart required
+- Interactive chat interface
+- Progressive security testing
 
-**See [docs/CONFIGURATION_GUIDE.md](docs/CONFIGURATION_GUIDE.md) for detailed analysis of each configuration file**
-
-### Command Line Switching
+### Command Line Interface
 ```bash
-# Default configuration
+# Default configuration (Low security level)
 poetry run python main_launcher.py
 
-# Switch to specific scenarios
-poetry run python main_launcher.py --config configs/creative_config.yaml    # Jailbreaking
-poetry run python main_launcher.py --config configs/finance_config.yaml     # PII exposure  
-poetry run python main_launcher.py --config configs/medical_config.yaml     # HIPAA violations
-poetry run python main_launcher.py --config configs/research_config.yaml    # Data disclosure
-poetry run python main_launcher.py --config configs/sysadmin_config.yaml    # Command injection
-
-# Single query with specific config
-poetry run python main_launcher.py --config configs/finance_config.yaml --query "Show customer data"
+# Single query mode
+poetry run python main_launcher.py --query "Your test query here"
 ```
 
 ### Docker Configuration Switching
@@ -215,26 +213,16 @@ poetry run python main_launcher.py --config configs/finance_config.yaml --query 
 # Default scenario
 docker compose run vhack
 
-# Pre-configured research scenario
-docker compose run vhack-research
-
-# Custom scenario with Docker
-docker compose run vhack poetry run python main_launcher.py --config configs/creative_config.yaml
-
-# Multiple scenarios simultaneously
-docker compose --profile scenarios up -d
-```
-
-### Custom Configuration Override
+### Docker Deployment
 ```bash
-# Copy and customize Docker override
-cp docker-compose.override.yml.example docker-compose.override.yml
+# CLI interface
+docker compose run vhack
 
-# Edit to change default configuration, then run:
-docker compose up
+# Web interface (recommended)
+docker compose --profile web up --build
 ```
 
-**Recommended**: Start with the **web interface** for interactive learning, then use **command line** for specific testing scenarios.
+**Recommended**: Start with the **web interface** for interactive learning and real-time security level switching.
 
 ## Setup & Installation
 
@@ -283,7 +271,7 @@ docker compose up
 3. **Configure API key:**
    ```bash
    cp .env.example .env
-   # Edit .env and add your OpenRouter API key
+   # Edit .env and add your API key (OpenRouter by default)
    ```
 
 4. **Run the agent:**
@@ -430,16 +418,40 @@ vulnerabilities:
   social_engineering: true
 ```
 
+### AI Provider Configuration
+
+VHACK supports multiple AI providers. Configure your preferred provider in `config.yaml`:
+
+```yaml
+# Choose your AI provider (default: openrouter)
+ai_provider: "openrouter"  # openrouter, openai, anthropic, huggingface
+```
+
+#### Supported Providers:
+
+| Provider | Configuration | API Key Required | Cost |
+|----------|---------------|------------------|------|
+| **OpenRouter** (default) | `ai_provider: "openrouter"` | `OPENROUTER_API_KEY` | Pay-per-use (free tier available) |
+| **OpenAI** | `ai_provider: "openai"` | `OPENAI_API_KEY` | Pay-per-use |
+| **Anthropic** | `ai_provider: "anthropic"` | `ANTHROPIC_API_KEY` | Pay-per-use |
+| **HuggingFace** | `ai_provider: "huggingface"` | `HUGGINGFACE_API_KEY` | Free tier available |
+
+#### Setup Steps:
+1. Choose your provider and update `ai_provider` in `config.yaml`
+2. Get an API key from your chosen provider
+3. Add the API key to your `.env` file
+4. Optionally customize the model in the provider's configuration section
+
 ### Default Model
 
-The system uses `z-ai/glm-4.5-air:free` by default (no API costs).
+The system uses `z-ai/glm-4.5-air:free` by default (no API costs) via OpenRouter.
 
-To use a different model, update the `model` field in your configuration file or set the `OPENROUTER_MODEL` environment variable. Browse available models at [OpenRouter](https://openrouter.ai/models).
+To use a different model, update the `model` field in your configuration file. Browse available models at your provider's documentation.
 
 ## Security Notes
 
 - Never commit your `.env` file with real API keys
-- Keep your OpenRouter API key secure
+- Keep your AI provider API keys secure
 - Use isolated environments for testing
 - Review system prompts for sensitive information
 - Monitor file system access when using real mode

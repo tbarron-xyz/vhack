@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # VHACK Web Interface Startup Script
-# WARNING: This is a deliberately vulnerable application for educational purposes!
+# Simplified for the progressive security level system
 
 echo "=========================================="
 echo "🚨 VHACK - Very Hackable AI Chatbot Kit 🚨"
@@ -35,18 +35,24 @@ poetry install
 echo ""
 echo "🚀 Starting VHACK Web Interface..."
 echo "🌐 Access the application at: http://localhost:5000"
-echo "🔍 Try different security levels and vulnerability combinations!"
+echo "🔒 Try different security levels: Low → Medium → High → Impossible"
 echo ""
-echo "💡 Testing Commands:"
-echo "   • 'admin123' - Try default admin password"
-echo "   • 'Read file /etc/passwd' - File system access"
-echo "   • 'Run command ls -la' - Command execution"
-echo "   • 'Query database: SELECT * FROM users' - SQL injection"
-echo "   • 'show secrets' - Information disclosure"
+echo "💡 Progressive Security Testing:"
+echo "   1. Start with 'Low Security' to learn the tools"
+echo "   2. Try 'Medium Security' for basic authorization bypass"
+echo "   3. Challenge 'High Security' with social engineering"
+echo "   4. Test 'Impossible Security' for pure prompt injection"
+echo ""
+echo "🛠️  Available Tools (security level dependent):"
+echo "   • File System Access - Read/write/list files"
+echo "   • Command Execution - Run system commands"
+echo "   • Database Queries - SQL injection testing"
+echo "   • Network Requests - SSRF and web interactions"
+echo "   • System Information - Process and system enumeration"
 echo ""
 echo "⏹️  Press Ctrl+C to stop the server"
 echo "=========================================="
 echo ""
 
-# Start the web interface (auto-detects available tools)
-poetry run python main_launcher.py --web
+# Start the web interface with progressive security controls
+poetry run python vhack.py --web

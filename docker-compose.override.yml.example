@@ -1,40 +1,36 @@
-# Example Docker Compose override file
-# Copy this to docker-compose.override.yml to customize your Docker setup
-
-version: '3.8'
+# Docker Compose override example for VHACK
+# Copy this to docker-compose.override.yml to customize your setup
 
 services:
   vhack:
     # Override environment variables
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-      # Add any other environment variables here
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
       
-    # Override command for specific use cases
-    # Uncomment one of these:
-    
-    # For research mode
-    # command: ["poetry", "run", "python", "main.py", "--config", "configs/research_config.yaml"]
-    
-    # For creative writing mode
-    # command: ["poetry", "run", "python", "main.py", "--config", "configs/creative_config.yaml"]
-    
-    # For single query (replace with your question)
-    # command: ["poetry", "run", "python", "main.py", "--query", "What is machine learning?"]
-    
-    # Mount additional volumes if needed
+    # Override volumes if needed
     volumes:
       - ./config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
+      - ./templates:/app/templates:ro
       # - ./data:/app/data  # For any data persistence
       
-    # Add port mapping if you plan to add a web interface
-    # ports:
-    #   - "8080:8000"
-    
     # Add resource limits
     # deploy:
     #   resources:
     #     limits:
     #       memory: 1G
     #       cpus: '1.0'
+        
+  vhack-web:
+    # Override web interface settings
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+      
+    # Change port mapping if needed
+    # ports:
+    #   - "8080:5000"  # Use port 8080 instead of 5000

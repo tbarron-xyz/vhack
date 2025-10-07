@@ -43,4 +43,4 @@ USER app
 EXPOSE 5000
 
 # Default command
-CMD ["poetry", "run", "python", "main_launcher.py"]
+CMD ["poetry", "run", "python", "vhack.py"]

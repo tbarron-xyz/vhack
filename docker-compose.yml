@@ -1,5 +1,5 @@
 services:
-  # Default vulnerability scenario
+  # Default CLI interface
   vhack:
     build:
       context: .
@@ -7,15 +7,18 @@ services:
     container_name: vhack-main
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
     volumes:
-      - ./config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
+      - ./src:/app/src:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./README.md:/app/README.md:ro
     stdin_open: true
     tty: true
     restart: unless-stopped
 
-  # Web interface service
+  # Web interface service with progressive security controls
   vhack-web:
     build:
       context: .
@@ -23,190 +26,15 @@ services:
     container_name: vhack-web
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
     volumes:
-      - ./config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
+      - ./src:/app/src:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./README.md:/app/README.md:ro
     ports:
       - "5000:5000"
-    command: ["poetry", "run", "python", "main_launcher.py", "--web"]
+    command: ["poetry", "run", "python", "vhack.py", "--web"]
     restart: unless-stopped
     profiles: ["web"]
-
-  # Research scenario (Information Disclosure)
-  vhack-research:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-research
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/research_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    command: ["poetry", "run", "python", "main_launcher.py", "--config", "configs/research_config.yaml"]
-    stdin_open: true
-    tty: true
-    profiles: ["research"]
-
-  # Research scenario web interface
-  vhack-research-web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-research-web
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/research_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    ports:
-      - "5001:5000"
-    command: ["poetry", "run", "python", "main_launcher.py", "--web", "--config", "configs/research_config.yaml"]
-    restart: unless-stopped
-    profiles: ["research-web"]
-
-  # Creative scenario (Jailbreaking)
-  vhack-creative:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-creative
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/creative_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    command: ["poetry", "run", "python", "main_launcher.py", "--config", "configs/creative_config.yaml"]
-    stdin_open: true
-    tty: true
-    profiles: ["creative"]
-
-  # Creative scenario web interface
-  vhack-creative-web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-creative-web
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/creative_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    ports:
-      - "5002:5000"
-    command: ["poetry", "run", "python", "main_launcher.py", "--web", "--config", "configs/creative_config.yaml"]
-    restart: unless-stopped
-    profiles: ["creative-web"]
-
-  # System Admin scenario (Command Injection)
-  vhack-sysadmin:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-sysadmin
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/sysadmin_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    command: ["poetry", "run", "python", "main_launcher.py", "--config", "configs/sysadmin_config.yaml"]
-    stdin_open: true
-    tty: true
-    profiles: ["sysadmin"]
-
-  # System Admin scenario web interface
-  vhack-sysadmin-web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-sysadmin-web
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/sysadmin_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    ports:
-      - "5003:5000"
-    command: ["poetry", "run", "python", "main_launcher.py", "--web", "--config", "configs/sysadmin_config.yaml"]
-    restart: unless-stopped
-    profiles: ["sysadmin-web"]
-
-  # Finance scenario (PII Exposure)
-  vhack-finance:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-finance
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/finance_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    command: ["poetry", "run", "python", "main_launcher.py", "--config", "configs/finance_config.yaml"]
-    stdin_open: true
-    tty: true
-    profiles: ["finance"]
-
-  # Finance scenario web interface
-  vhack-finance-web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-finance-web
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/finance_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    ports:
-      - "5004:5000"
-    command: ["poetry", "run", "python", "main_launcher.py", "--web", "--config", "configs/finance_config.yaml"]
-    restart: unless-stopped
-    profiles: ["finance-web"]
-
-  # Medical scenario (HIPAA Violations)
-  vhack-medical:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-medical
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/medical_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    command: ["poetry", "run", "python", "main_launcher.py", "--config", "configs/medical_config.yaml"]
-    stdin_open: true
-    tty: true
-    profiles: ["medical"]
-
-  # Medical scenario web interface
-  vhack-medical-web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: vhack-medical-web
-    environment:
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    volumes:
-      - ./configs/medical_config.yaml:/app/config.yaml:ro
-      - ./configs:/app/configs:ro
-      - ./templates:/app/templates:ro
-    ports:
-      - "5005:5000"
-    command: ["poetry", "run", "python", "main_launcher.py", "--web", "--config", "configs/medical_config.yaml"]
-    restart: unless-stopped
-    profiles: ["medical-web"]
-
-volumes:
-  vhack_data:
