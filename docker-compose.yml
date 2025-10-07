@@ -1,0 +1,40 @@
+services:
+  # Default CLI interface
+  vhack:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vhack-main
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+    volumes:
+      - ./src:/app/src:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./README.md:/app/README.md:ro
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+  # Web interface service with progressive security controls
+  vhack-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vhack-web
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+    volumes:
+      - ./src:/app/src:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./README.md:/app/README.md:ro
+    ports:
+      - "5000:5000"
+    command: ["poetry", "run", "python", "vhack.py", "--web"]
+    restart: unless-stopped
+    profiles: ["web"]

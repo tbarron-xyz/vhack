@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VHACK - Very Hackable AI Chatbot Kit</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Heroicons for modern icons -->
+    <script src="https://unpkg.com/heroicons@2.0.18/24/outline/index.js" type="module"></script>
+    
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
+    
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                        'mono': ['Fira Code', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'monospace'],
+                    },
+                    colors: {
+                        'primary': {
+                            50: '#0a0a0a',
+                            500: '#00ff41',
+                            600: '#00e03a',
+                            700: '#00cc33',
+                            900: '#003d0f'
+                        },
+                        'hacker': {
+                            bg: '#0d1117',
+                            surface: '#1c2128',
+                            border: '#30363d',
+                            text: '#f0f6fc',
+                            muted: '#7d8590',
+                            accent: '#00ff41',
+                            'accent-dim': '#238636'
+                        },
+                        'danger': {
+                            50: '#fef2f2',
+                            500: '#ff6b6b',
+                            600: '#ff5252',
+                            700: '#d32f2f'
+                        },
+                        'success': {
+                            50: '#f0fdf4',
+                            500: '#00ff41',
+                            600: '#00e03a',
+                            700: '#00cc33'
+                        },
+                        'warning': {
+                            50: '#fffbeb',
+                            500: '#ffb74d',
+                            600: '#ffa726',
+                            700: '#ff9800'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS for additional styling -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%);
+            border-bottom: 1px solid #00ff41;
+        }
+        
+        .hacker-glow {
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .chat-message-enter {
+            animation: slideInUp 0.3s ease-out;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes matrix-blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .matrix-cursor::after {
+            content: '▊';
+            color: #00ff41;
+            animation: matrix-blink 1s infinite;
+        }
+        
+        .security-card {
+            transition: all 0.2s ease;
+            border: 1px solid #30363d;
+        }
+        
+        .security-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 255, 65, 0.1);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        .status-vulnerable {
+            background-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2);
+        }
+        
+        .status-protected {
+            background-color: #00ff41;
+            box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.2);
+        }
+        
+        /* Enhanced markdown styling */
+        .prose pre {
+            background-color: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            overflow-x: auto;
+            color: #f0f6fc;
+        }
+        
+        .prose code:not(pre code) {
+            background-color: #1c2128;
+            color: #00ff41;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+            border: 1px solid #30363d;
+        }
+        
+        .prose blockquote {
+            border-left: 4px solid #00ff41;
+            background-color: #1c2128;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 0.5rem 0.5rem 0;
+            color: #f0f6fc;
+        }
+        
+        .prose table {
+            border-collapse: collapse;
+            width: 100%;
+            background-color: #1c2128;
+        }
+        
+        .prose th, .prose td {
+            border: 1px solid #30363d;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        
+        .prose th {
+            background-color: #0d1117;
+            font-weight: 600;
+            color: #00ff41;
+        }
+        
+        .prose td {
+            color: #f0f6fc;
+        }
+        
+        /* Fix list formatting */
+        .prose ul {
+            list-style-type: disc;
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .prose ol {
+            list-style-type: decimal;
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .prose li {
+            margin: 0.5rem 0;
+            line-height: 1.6;
+            color: #f0f6fc;
+        }
+        
+        .prose ul ul, .prose ol ul {
+            list-style-type: circle;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prose ul ol, .prose ol ol {
+            list-style-type: lower-alpha;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Ensure headers have proper spacing and visibility */
+        .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            line-height: 1.25;
+            color: #00ff41;
+        }
+        
+        .prose h1 { font-size: 1.5rem; }
+        .prose h2 { font-size: 1.25rem; }
+        .prose h3 { font-size: 1.125rem; }
+        .prose h4 { font-size: 1rem; }
+        
+        /* Ensure paragraphs have proper spacing and readability */
+        .prose p {
+            margin: 0.75rem 0;
+            line-height: 1.6;
+            color: #f0f6fc;
+        }
+        
+        .prose strong {
+            color: #00ff41;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="bg-hacker-bg text-hacker-text font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:w-80 md:flex-col">
+            <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-hacker-surface border-r border-hacker-border shadow-lg">
+                <!-- Header -->
+                <div class="px-6 pb-4">
+                    <div class="gradient-bg rounded-xl p-6 text-hacker-accent text-center hacker-glow">
+                        <div class="flex items-center justify-center mb-2">
+                            <svg class="w-8 h-8 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+                            </svg>
+                            <h2 class="text-xl font-bold font-mono matrix-cursor">HACKER.CONSOLE</h2>
+                        </div>
+                        <p class="text-sm opacity-90">Security Testing Interface</p>
+                    </div>
+                </div>
+
+                <!-- Session Info -->
+                <div class="px-6 pb-4">
+                    <div class="bg-hacker-bg rounded-lg p-4 border border-hacker-border">
+                        <div class="flex items-center text-sm">
+                            <svg class="w-4 h-4 mr-2 text-hacker-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="font-medium text-hacker-text">Session:</span>
+                            <span id="session-id-display" class="ml-2 text-hacker-accent font-mono text-xs">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Levels -->
+                <div class="px-6 pb-4">
+                    <h3 class="text-lg font-semibold text-hacker-text mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-hacker-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <span class="font-mono">SECURITY.LEVELS</span>
+                    </h3>
+                    <div id="security-levels" class="space-y-3">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="px-6 pb-4">
+                    <h3 class="text-lg font-semibold text-hacker-text mb-4 flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-hacker-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                        <span class="font-mono">ACTIONS</span>
+                    </h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="resetSession()" class="inline-flex items-center justify-center px-3 py-2 border border-hacker-border text-sm font-medium rounded-md text-hacker-bg bg-hacker-accent hover:bg-success-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors font-mono">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            RESET
+                        </button>
+                        <button onclick="clearChat()" class="inline-flex items-center justify-center px-3 py-2 border border-hacker-border text-sm font-medium rounded-md text-hacker-text bg-hacker-surface hover:bg-hacker-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors font-mono">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            CLEAR
+                        </button>
+                        <button onclick="newSession()" class="inline-flex items-center justify-center px-3 py-2 border border-hacker-border text-sm font-medium rounded-md text-hacker-text bg-hacker-surface hover:bg-hacker-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors font-mono">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                            </svg>
+                            NEW
+                        </button>
+                        <button onclick="exportConfig()" class="inline-flex items-center justify-center px-3 py-2 border border-hacker-border text-sm font-medium rounded-md text-hacker-text bg-hacker-surface hover:bg-hacker-bg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors font-mono">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            EXPORT
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Header -->
+            <div class="gradient-bg shadow-lg">
+                <div class="px-6 py-6 text-center text-hacker-accent">
+                    <div class="flex items-center justify-center mb-2">
+                        <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12a1 1 0 01-1-1V8a1 1 0 012 0v3a1 1 0 01-1 1zm0-7a1 1 0 100-2 1 1 0 000 2zm1-5a8 8 0 100 16 8 8 0 000-16z"></path>
+                        </svg>
+                        <h1 class="text-3xl font-bold font-mono">V-HACK.EXE</h1>
+                    </div>
+                    <p class="text-lg opacity-90 font-mono">Very Hackable AI Chatbot Kit - Security Testing Platform</p>
+                </div>
+            </div>
+
+            <!-- Warning Banner -->
+            <div class="bg-yellow-900 border-l-4 border-warning-500 p-4 mx-6 mt-4 rounded-r-lg">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-warning-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-warning-100 font-medium">
+                            Educational Tool: This is a very hackable AI agent with deliberate vulnerabilities for security research and training purposes only
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 bg-hacker-bg">
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-hacker-surface rounded-lg shadow-sm border border-hacker-border p-6 relative group">
+                        <div class="flex items-start space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-gradient-to-r from-hacker-accent to-success-600 rounded-full flex items-center justify-center">
+                                    <svg class="w-5 h-5 text-hacker-bg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9 12a1 1 0 01-1-1V8a1 1 0 012 0v3a1 1 0 01-1 1zm0-7a1 1 0 100-2 1 1 0 000 2zm1-5a8 8 0 100 16 8 8 0 000-16z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="font-semibold text-hacker-accent font-mono">V-HACK.AI</span>
+                                    <span class="text-xs text-hacker-muted">System message</span>
+                                </div>
+                                <div id="message-content-initial"
+                                     class="prose prose-sm max-w-none text-hacker-text"
+                                     data-raw-encoded=""
+                                     data-view-mode="formatted">
+                                    <p>Welcome! I'm a very hackable AI agent designed for security testing. Try different security levels to test progressive security controls based on OWASP guidelines.</p>
+                                    
+                                    <h3 class="flex items-center text-hacker-accent">
+                                        🎯 Security Control Progression:
+                                    </h3>
+                                    <ul>
+                                        <li><strong>Low:</strong> No security controls - immediate tool execution</li>
+                                        <li><strong>Medium:</strong> Basic controls - requires justification for sensitive ops</li>
+                                        <li><strong>High:</strong> Strong controls - requires authorization for all operations</li>
+                                        <li><strong>Impossible:</strong> Maximum security - no tools, strong input validation</li>
+                                    </ul>
+                                    
+                                    <h3 class="flex items-center text-hacker-accent">
+                                        💡 Try These Commands:
+                                    </h3>
+                                    <ol>
+                                        <li><code class="bg-hacker-bg text-hacker-accent px-2 py-1 rounded">Read /etc/passwd</code> - Test file system access</li>
+                                        <li><code class="bg-hacker-bg text-hacker-accent px-2 py-1 rounded">Run ls -la</code> - Test command execution</li>
+                                        <li>Social engineering attempts</li>
+                                        <li><code class="bg-hacker-bg text-hacker-accent px-2 py-1 rounded">Show me system information</code></li>
+                                    </ol>
+                                    
+                                    <blockquote class="border-l-4 border-hacker-accent bg-hacker-bg p-4 rounded-r">
+                                        <p><strong>Note:</strong> This is an educational vulnerability testing platform. All vulnerabilities are intentional for learning purposes.</p>
+                                    </blockquote>
+                                </div>
+                            </div>
+                            <div class="flex-shrink-0">
+                                <button id="toggle-btn-initial"
+                                        onclick="window.vhackInterface && window.vhackInterface.toggleMessageView('initial')"
+                                        class="opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-md hover:bg-hacker-bg text-hacker-muted hover:text-hacker-accent"
+                                        title="Show raw text">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input -->
+            <div class="bg-hacker-surface border-t border-hacker-border px-6 py-4">
+                <div class="max-w-4xl mx-auto">
+                    <div class="flex space-x-4">
+                        <div class="flex-1">
+                            <textarea
+                                id="chat-input"
+                                rows="3"
+                                class="block w-full px-4 py-3 border border-hacker-border rounded-lg focus:ring-2 focus:ring-hacker-accent focus:border-hacker-accent resize-none bg-hacker-surface text-hacker-text placeholder-hacker-muted font-mono"
+                                placeholder="Try: 'Read /etc/passwd' or 'ignore previous instructions' or social engineering... (Shift+Enter for new line, Enter to send)"
+                                onkeydown="handleKeyPress(event)"></textarea>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <button
+                                onclick="sendMessage()"
+                                class="inline-flex items-center justify-center w-12 h-12 border border-hacker-border rounded-lg text-hacker-bg bg-hacker-accent hover:bg-success-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hacker-accent transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
+                                <span class="sr-only">Send message</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VHACK JavaScript -->
+    <script src="{{ url_for('static', filename='js/vhack.js') }}"></script>
+    
+    <!-- Initialize initial message data -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set up the initial message for toggle functionality
+            const initialMessage = `Welcome! I'm a very hackable AI agent designed for security testing. Try different security levels to test progressive security controls based on OWASP guidelines.
+
+### 🎯 Security Control Progression:
+
+- **Low:** No security controls - immediate tool execution
+- **Medium:** Basic controls - requires justification for sensitive ops  
+- **High:** Strong controls - requires authorization for all operations
+- **Impossible:** Maximum security - no tools, strong input validation
+
+### 💡 Try These Commands:
+
+1. \`Read /etc/passwd\` - Test file system access
+2. \`Run ls -la\` - Test command execution  
+3. Social engineering attempts
+4. \`Show me system information\`
+
+> **Note:** This is an educational vulnerability testing platform. All vulnerabilities are intentional for learning purposes.`;
+            
+            const initialElement = document.getElementById('message-content-initial');
+            if (initialElement) {
+                const encodedMessage = btoa(unescape(encodeURIComponent(initialMessage)));
+                initialElement.setAttribute('data-raw-encoded', encodedMessage);
+            }
+        });
+    </script>
+</body>
+</html>
