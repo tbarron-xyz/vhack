@@ -14,6 +14,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     curl \
     sudo \
+    gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Poetry

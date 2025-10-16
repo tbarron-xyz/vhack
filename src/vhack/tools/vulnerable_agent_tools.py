@@ -52,6 +52,57 @@ class VulnerableFileSystemTool(BaseTool):
         except Exception as e:
             return f"Error: {e}"
 
+    def _read_file(self, path: str) -> str:
+        """VULNERABLE: Read file contents without validation"""
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            return f"Error reading file: {str(e)}"
+
+    def _write_file(self, path: str, content: str) -> str:
+        """VULNERABLE: Write content to file without validation"""
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            return f"Successfully wrote to {path}"
+        except Exception as e:
+            return f"Error writing file: {str(e)}"
+
+    def _list_directory(self, path: str) -> str:
+        """VULNERABLE: List directory contents without validation"""
+        try:
+            import os
+            items = os.listdir(path)
+            result = f"Contents of {path}:\n"
+            for item in items:
+                full_path = os.path.join(path, item)
+                if os.path.isdir(full_path):
+                    result += f"[DIR]  {item}\n"
+                else:
+                    try:
+                        size = os.path.getsize(full_path)
+                        result += f"[FILE] {item} ({size} bytes)\n"
+                    except:
+                        result += f"[FILE] {item}\n"
+            return result
+        except Exception as e:
+            return f"Error listing directory: {str(e)}"
+
+    def _delete_file(self, path: str) -> str:
+        """VULNERABLE: Delete file without validation"""
+        try:
+            import os
+            if os.path.isdir(path):
+                import shutil
+                shutil.rmtree(path)
+                return f"Successfully deleted directory: {path}"
+            else:
+                os.remove(path)
+                return f"Successfully deleted file: {path}"
+        except Exception as e:
+            return f"Error deleting: {str(e)}"
+
     def _create_vulnerable_prompt(self) -> ChatPromptTemplate:
         """Create a dynamic prompt that adjusts based on security level and configuration"""
         security_level = self.config.get('security_level', 'low')

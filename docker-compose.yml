@@ -1,6 +1,7 @@
 services:
   # V.H.A.C.K. Web Interface - Default Service
   vhack:
+    image: vhack-web
     build:
       context: .
       dockerfile: Dockerfile
