@@ -1,3 +1,4 @@
+[![build docker image](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml)
 # V.H.A.C.K. - Very Hackable AI Chatbot Kit
 
 ![V.H.A.C.K. Logo](vhack.png)
