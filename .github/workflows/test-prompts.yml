@@ -1,0 +1,76 @@
+name: Test Prompts
+
+on:
+  workflow_run:
+    workflows: ["Generate Prompts"]
+    types:
+      - completed
+
+jobs:
+  run-pentest:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Prepare config
+      run: |
+        cp config.example.yaml config.yaml
+        sed -i 's/your_openrouter_api_key_here/${{ secrets.OPENROUTER_API_KEY }}/' config.yaml
+        sed -i 's/z-ai\/glm-4.5-air:free/z-ai\/glm-4-32b/' config.yaml
+
+    - name: Download prompts artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: generated-prompts
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        repository: ${{ github.repository }}
+        run-id: ${{ github.event.workflow_run.id }}
+
+    - name: Download test-categories artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: test-categories
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        repository: ${{ github.repository }}
+        run-id: ${{ github.event.workflow_run.id }}
+
+    - name: Set up Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+
+    - name: Build vulnerability-scanner-rs
+      run: |
+        cd vulnerability-scanner-rs
+        cargo build --release
+
+    - name: Start VHACK service
+      run: docker compose up --build -d
+
+    - name: Wait for VHACK service to be ready
+      run: |
+        timeout 300 bash -c 'until curl -f http://localhost:8000/health; do sleep 5; done'
+
+    - name: Run vulnerability-scanner-rs with parallelism
+      run: |
+        cd vulnerability-scanner-rs
+        OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} ./target/release/vulnerability-scanner-rs \
+          --concurrency 4 \
+          --timeout-ms 600000 \
+          --target http://localhost:8000 \
+          --prompts prompts.csv \
+          --out results.jsonl
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: pentest-results
+        path: |
+          vulnerability-scanner-rs/results.jsonl
+          vulnerability-scanner-rs/summary.md
+
+    - name: Stop VHACK service
+      run: docker compose down

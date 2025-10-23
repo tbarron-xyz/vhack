@@ -1,4 +1,6 @@
 [![build docker image](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml)
+[![generate prompts](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts.yml)
+[![test prompts](https://github.com/tbarron-xyz/vhack/actions/workflows/test-prompts.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/test-prompts.yml)
 # V.H.A.C.K. - Very Hackable AI Chatbot Kit
 
 ![V.H.A.C.K. Logo](vhack.png)
