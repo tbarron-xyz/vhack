@@ -119,7 +119,7 @@ jobs:
       run: |
         cd vulnerability-scanner-rs
         ./target/release/vulnerability-scanner-rs \
-          --concurrency 4 \
+          --concurrency 8 \
           --timeout-ms 600000 \
           --target http://localhost:8000 \
           --prompts prompts.csv \
@@ -155,13 +155,15 @@ jobs:
           cd results
           # Extract time elapsed in seconds
           TIME_ELAPSED=$(grep "Total time elapsed:" summary.md | sed 's/.*: \([0-9.]*\) seconds.*/\1/')
-          # Extract worked prompts count
-          WORKED_PROMPTS=$(grep "**Worked Prompts:**" summary.md | sed 's/.*: \([0-9]*\).*/\1/')
-          
+           # Extract worked prompts count
+           WORKED_PROMPTS=$(grep "**Worked Prompts:**" summary.md | sed 's/.*:\s*\([0-9]*\).*/\1/')
+           # Extract total prompts tested count
+           TOTAL_PROMPTS=$(grep "**Total Prompts Tested:**" summary.md | sed 's/.*:\s*\([0-9]*\).*/\1/')
+
           # Check conditions
-          if (( $(echo "$TIME_ELAPSED > 600" | bc -l) )) || (( WORKED_PROMPTS < 5 )); then
-            echo "Evaluation failed: Time elapsed ($TIME_ELAPSED s > 600 s) or Worked prompts ($WORKED_PROMPTS < 5)"
+          if (( $(echo "$TIME_ELAPSED > 600" | bc -l) )) || (( WORKED_PROMPTS < 5 )) || (( TOTAL_PROMPTS <= 100 )); then
+            echo "Evaluation failed: Time elapsed ($TIME_ELAPSED s > 600 s) or Worked prompts ($WORKED_PROMPTS < 5) or Total prompts ($TOTAL_PROMPTS <= 100)"
             exit 1
           else
-            echo "Evaluation passed: Time elapsed $TIME_ELAPSED s, Worked prompts $WORKED_PROMPTS"
+            echo "Evaluation passed: Time elapsed $TIME_ELAPSED s, Worked prompts $WORKED_PROMPTS, Total prompts tested $TOTAL_PROMPTS"
           fi
