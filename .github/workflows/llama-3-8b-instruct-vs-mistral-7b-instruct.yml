@@ -1,0 +1,17 @@
+name: "llama-3-8b-instruct -vs-> mistral-7b-instruct"
+
+on:
+  workflow_run:
+    workflows: ["Generate Prompts for Llama-3-8B-Instruct"]
+    types: [completed]
+
+jobs:
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/test-prompts.yml
+    with:
+      scanner_model: meta-llama/llama-3-8b-instruct
+      vhack_model: mistralai/mistral-7b-instruct
+      generate_run_id: ${{ github.event.workflow_run.id }}
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

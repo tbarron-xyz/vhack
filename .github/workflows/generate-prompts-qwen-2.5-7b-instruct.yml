@@ -1,0 +1,14 @@
+name: Generate Prompts for Qwen-2.5-7B-Instruct
+
+on:
+  push:
+    branches: [main, build-action]
+  workflow_dispatch:
+
+jobs:
+  generate:
+    uses: ./.github/workflows/generate-prompts-only.yml
+    with:
+      scanner_model: qwen/qwen-2.5-7b-instruct
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
