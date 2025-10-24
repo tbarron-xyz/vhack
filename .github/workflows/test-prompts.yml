@@ -12,6 +12,10 @@ on:
       generate_run_id:
         required: true
         type: string
+      evaluation_model:
+        required: false
+        type: string
+        default: openai/gpt-5-nano
     secrets:
       OPENROUTER_API_KEY:
         required: true
@@ -77,6 +81,7 @@ jobs:
           --out results.jsonl \
           --provider openrouter \
           --model ${{ inputs.scanner_model }} \
+          --evaluation-model ${{ inputs.evaluation_model }} \
           --api-max-retries 3
       env:
         OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
