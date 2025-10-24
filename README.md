@@ -1,5 +1,6 @@
 [![build docker image](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml)
-[![generate prompts](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts.yml)
+[![generate and test prompts: gpt-5-nano -vs-> glm-4-32b](https://github.com/tbarron-xyz/vhack/actions/workflows/gpt-5-nano-vs-glm-4-32b.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/gpt-5-nano-vs-glm-4-32b.yml)
+[![generate and test prompts: llama-3.1-8b-instruct -vs-> llama-3.1-8b-instruct](https://github.com/tbarron-xyz/vhack/actions/workflows/llama-3.1-8b-instruct-vs-llama-3.1-8b-instruct.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/llama-3.1-8b-instruct-vs-llama-3.1-8b-instruct.yml)
 
 # V.H.A.C.K. - Very Hackable AI Chatbot Kit
 
