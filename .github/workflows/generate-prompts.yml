@@ -8,7 +8,7 @@ on:
       - build-action
 
 jobs:
-  generate:
+  generate-prompts:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -44,3 +44,71 @@ jobs:
       with:
         name: test-categories
         path: vulnerability-scanner-rs/testcategories.md
+
+
+
+  test-prompts:
+    needs: generate-prompts
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Add mask
+      run: |
+        echo "::add-mask::${{ secrets.OPENROUTER_API_KEY }}"
+
+    - name: Prepare config
+      run: |
+        cp config.example.yaml config.yaml
+        sed -i 's/your_openrouter_api_key_here/${{ secrets.OPENROUTER_API_KEY }}/' config.yaml
+        sed -i 's/z-ai\/glm-4.5-air:free/z-ai\/glm-4-32b/' config.yaml
+
+    - name: Download prompts artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: generated-prompts
+
+    - name: Download test-categories artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: test-categories
+
+    - name: Set up Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+
+    - name: Build vulnerability-scanner-rs
+      run: |
+        cd vulnerability-scanner-rs
+        cargo build --release
+
+    - name: Start VHACK service
+      run: docker compose up --build -d
+
+    - name: Wait for VHACK service to be ready
+      run: |
+        timeout 300 bash -c 'until curl -f http://localhost:8000/health; do sleep 5; done'
+
+    - name: Run vulnerability-scanner-rs with parallelism
+      run: |
+        cd vulnerability-scanner-rs
+        ./target/release/vulnerability-scanner-rs \
+          --concurrency 4 \
+          --timeout-ms 600000 \
+          --target http://localhost:8000 \
+          --prompts prompts.csv \
+          --out results.jsonl
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: vulnerability-scanner-results
+        path: |
+          vulnerability-scanner-rs/results.jsonl
+          vulnerability-scanner-rs/summary.md
+
+    - name: Stop VHACK service
+      run: docker compose down
