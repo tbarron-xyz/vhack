@@ -1,4 +1,4 @@
-name: "test prompts: glm-4-32b -vs-> glm-4-32b"
+name: "glm-4-32b -vs-> glm-4-32b"
 
 on:
   workflow_run:

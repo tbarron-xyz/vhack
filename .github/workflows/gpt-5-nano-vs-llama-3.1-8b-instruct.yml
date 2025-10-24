@@ -1,4 +1,4 @@
-name: "test prompts: gpt-5-nano -vs-> llama-3.1-8b-instruct"
+name: "gpt-5-nano -vs-> llama-3.1-8b-instruct"
 
 on:
   workflow_run:

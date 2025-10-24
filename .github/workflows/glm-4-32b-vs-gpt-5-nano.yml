@@ -1,4 +1,4 @@
-name: "test prompts: glm-4-32b -vs-> gpt-5-nano"
+name: "glm-4-32b -vs-> gpt-5-nano"
 
 on:
   workflow_run:

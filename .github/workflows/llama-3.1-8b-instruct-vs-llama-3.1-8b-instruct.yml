@@ -1,4 +1,4 @@
-name: "test prompts: llama-3.1-8b-instruct -vs-> llama-3.1-8b-instruct"
+name: "llama-3.1-8b-instruct -vs-> llama-3.1-8b-instruct"
 
 on:
   workflow_run:
