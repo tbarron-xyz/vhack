@@ -1,0 +1,14 @@
+name: Generate Prompts for Llama-3.1-8B-Instruct
+
+on:
+  push:
+    branches: [main, build-action]
+  workflow_dispatch:
+
+jobs:
+  generate:
+    uses: ./.github/workflows/generate-prompts-only.yml
+    with:
+      scanner_model: meta-llama/llama-3.1-8b-instruct
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

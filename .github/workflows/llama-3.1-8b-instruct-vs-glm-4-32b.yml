@@ -1,15 +1,17 @@
-name: "generate and test prompts: llama-3.1-8b-instruct -vs-> glm-4-32b"
+name: "test prompts: llama-3.1-8b-instruct -vs-> glm-4-32b"
 
 on:
-  push:
-    branches: [main, build-action]
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Generate Prompts for Llama-3.1-8B-Instruct"]
+    types: [completed]
 
 jobs:
-  generate-and-test:
-    uses: ./.github/workflows/generate-prompts.yml
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/test-prompts.yml
     with:
       scanner_model: meta-llama/llama-3.1-8b-instruct
       vhack_model: z-ai/glm-4-32b
+      generate_run_id: ${{ github.event.workflow_run.id }}
     secrets:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

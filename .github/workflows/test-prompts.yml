@@ -1,4 +1,4 @@
-name: Generate And Test Prompts
+name: Test Prompts
 
 on:
   workflow_call:
@@ -9,83 +9,15 @@ on:
       vhack_model:
         required: true
         type: string
+      generate_run_id:
+        required: true
+        type: string
     secrets:
       OPENROUTER_API_KEY:
         required: true
 
 jobs:
-  build-rust:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-
-    - name: Cache restore rust build target
-      id: cache-target
-      uses: actions/cache/restore@v4
-      with:
-        path: vulnerability-scanner-rs/target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
-
-    - name: Build vulnerability-scanner-rs
-      if: steps.cache-target.outputs.cache-hit != 'true'
-      run: |
-        cd vulnerability-scanner-rs
-        cargo build --release
-
-    - name: Cache save rust build target
-      if: steps.cache-target.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: vulnerability-scanner-rs/target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
-
-  generate-prompts:
-    needs: build-rust
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    outputs:
-      runid: ${{github.run_id}}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Cache restore rust build target
-      uses: actions/cache/restore@v4
-      with:
-        path: vulnerability-scanner-rs/target
-        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
-
-    - name: Generate prompts
-      run: |
-        cd vulnerability-scanner-rs
-        ./target/release/vulnerability-scanner-rs --generate-prompts --concurrency 4 --provider openrouter --model ${{ inputs.scanner_model }}
-      env:
-        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-
-    - name: Upload prompts.csv as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: generated-prompts
-        path: vulnerability-scanner-rs/prompts.csv
-
-    - name: Upload testcategories.md as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: test-categories
-        path: vulnerability-scanner-rs/testcategories.md
-
-
-
   test-prompts:
-    needs: generate-prompts
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -106,12 +38,14 @@ jobs:
       with:
         name: generated-prompts
         path: vulnerability-scanner-rs
+        run-id: ${{ inputs.generate_run_id }}
 
     - name: Download test-categories artifact
       uses: actions/download-artifact@v4
       with:
         name: test-categories
         path: vulnerability-scanner-rs
+        run-id: ${{ inputs.generate_run_id }}
 
     - name: Set up Rust
       uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -135,7 +69,7 @@ jobs:
         cd vulnerability-scanner-rs
         ./target/release/vulnerability-scanner-rs \
           --concurrency 8 \
-          --timeout-ms 600000 \
+          --timeout-ms 599000 \
           --target http://localhost:8000 \
           --prompts prompts.csv \
           --out results.jsonl \
@@ -156,8 +90,6 @@ jobs:
     - name: Stop VHACK service
       run: docker compose down
 
-
-      
   evaluate-results:
     needs: test-prompts
     runs-on: ubuntu-latest

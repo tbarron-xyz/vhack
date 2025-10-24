@@ -1,0 +1,14 @@
+name: Generate Prompts for GLM-4-32B
+
+on:
+  push:
+    branches: [main, build-action]
+  workflow_dispatch:
+
+jobs:
+  generate:
+    uses: ./.github/workflows/generate-prompts-only.yml
+    with:
+      scanner_model: z-ai/glm-4-32b
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

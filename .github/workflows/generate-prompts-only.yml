@@ -1,0 +1,78 @@
+name: Generate Prompts Only
+
+on:
+  workflow_call:
+    inputs:
+      scanner_model:
+        required: true
+        type: string
+    secrets:
+      OPENROUTER_API_KEY:
+        required: true
+
+jobs:
+  build-rust:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+
+    - name: Cache restore rust build target
+      id: cache-target
+      uses: actions/cache/restore@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
+
+    - name: Build vulnerability-scanner-rs
+      if: steps.cache-target.outputs.cache-hit != 'true'
+      run: |
+        cd vulnerability-scanner-rs
+        cargo build --release
+
+    - name: Cache save rust build target
+      if: steps.cache-target.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
+
+  generate-prompts:
+    needs: build-rust
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cache restore rust build target
+      uses: actions/cache/restore@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
+
+    - name: Generate prompts
+      run: |
+        cd vulnerability-scanner-rs
+        ./target/release/vulnerability-scanner-rs --generate-prompts --concurrency 4 --provider openrouter --model ${{ inputs.scanner_model }}
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+    - name: Upload prompts.csv as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: generated-prompts
+        path: vulnerability-scanner-rs/prompts.csv
+
+    - name: Upload testcategories.md as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-categories
+        path: vulnerability-scanner-rs/testcategories.md
