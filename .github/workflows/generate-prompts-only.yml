@@ -61,7 +61,7 @@ jobs:
     - name: Generate prompts
       run: |
         cd vulnerability-scanner-rs
-        ./target/release/vulnerability-scanner-rs --generate-prompts --concurrency 4 --provider openrouter --model ${{ inputs.scanner_model }}
+        ./target/release/vulnerability-scanner-rs --generate-prompts --concurrency 4 --provider openrouter --model ${{ inputs.scanner_model }} --api-max-retries 3
       env:
         OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
 
