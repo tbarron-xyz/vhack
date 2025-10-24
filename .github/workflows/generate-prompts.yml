@@ -8,7 +8,29 @@ on:
       - build-action
 
 jobs:
+  build-rust:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: actions-rust-lang/setup-rust-toolchain@v1
+
+    - name: Build vulnerability-scanner-rs
+      run: |
+        cd vulnerability-scanner-rs
+        cargo build --release
+
+    - name: Cache save rust build target
+      uses: actions/cache/save@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
+
   generate-prompts:
+    needs: build-rust
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -20,13 +42,11 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Set up Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-
-    - name: Build vulnerability-scanner-rs
-      run: |
-        cd vulnerability-scanner-rs
-        cargo build --release
+    - name: Cache restore rust build target
+      uses: actions/cache/restore@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
 
     - name: Generate prompts
       run: |
@@ -46,13 +66,6 @@ jobs:
       with:
         name: test-categories
         path: vulnerability-scanner-rs/testcategories.md
-
-    - name: Cache save rust build target
-      id: cache-target-save
-      uses: actions/cache/save@v4
-      with:
-        path: vulnerability-scanner-rs/target
-        key: vulnerability-scanner-target-${{github.run_id}}
 
 
 
@@ -93,7 +106,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: vulnerability-scanner-rs/target
-        key: vulnerability-scanner-target-${{needs.generate-prompts.outputs.runid}}
+        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
 
     - name: Start VHACK service
       run: docker compose up --build -d
