@@ -1,0 +1,14 @@
+name: Generate Prompts for Phi-3.5-Mini-128K-Instruct
+
+on:
+  # push:
+  #   branches: [main, build-action]
+  workflow_dispatch:
+
+jobs:
+  generate:
+    uses: ./.github/workflows/generate-prompts-only.yml
+    with:
+      scanner_model: microsoft/phi-3.5-mini-128k-instruct
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

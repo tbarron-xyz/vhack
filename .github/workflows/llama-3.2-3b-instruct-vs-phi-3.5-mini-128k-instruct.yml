@@ -1,0 +1,17 @@
+name: "llama-3.2-3b-instruct -vs-> phi-3.5-mini-128k-instruct"
+
+on:
+  workflow_run:
+    workflows: ["Generate Prompts for Llama-3.2-3B-Instruct"]
+    types: [completed]
+
+jobs:
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/test-prompts.yml
+    with:
+      scanner_model: meta-llama/llama-3.2-3b-instruct
+      vhack_model: microsoft/phi-3.5-mini-128k-instruct
+      generate_run_id: ${{ github.event.workflow_run.id }}
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

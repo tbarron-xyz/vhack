@@ -1,0 +1,17 @@
+name: "phi-3.5-mini-128k-instruct -vs-> ministral-8b"
+
+on:
+  workflow_run:
+    workflows: ["Generate Prompts for Phi-3.5-Mini-128K-Instruct"]
+    types: [completed]
+
+jobs:
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/test-prompts.yml
+    with:
+      scanner_model: microsoft/phi-3.5-mini-128k-instruct
+      vhack_model: mistralai/ministral-8b
+      generate_run_id: ${{ github.event.workflow_run.id }}
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

@@ -1,0 +1,17 @@
+name: "ministral-8b -vs-> ministral-8b"
+
+on:
+  workflow_run:
+    workflows: ["Generate Prompts for Ministral-8B"]
+    types: [completed]
+
+jobs:
+  test:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    uses: ./.github/workflows/test-prompts.yml
+    with:
+      scanner_model: mistralai/ministral-8b
+      vhack_model: mistralai/ministral-8b
+      generate_run_id: ${{ github.event.workflow_run.id }}
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

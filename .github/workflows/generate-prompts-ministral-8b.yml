@@ -1,0 +1,14 @@
+name: Generate Prompts for Ministral-8B
+
+on:
+  # push:
+  #   branches: [main, build-action]
+  workflow_dispatch:
+
+jobs:
+  generate:
+    uses: ./.github/workflows/generate-prompts-only.yml
+    with:
+      scanner_model: mistralai/ministral-8b
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
