@@ -1,0 +1,15 @@
+name: "generate and test prompts: glm-4-32b -vs-> llama-3.1-8b-instruct"
+
+on:
+  push:
+    branches: [main, build-action]
+  workflow_dispatch:
+
+jobs:
+  generate-and-test:
+    uses: ./.github/workflows/generate-prompts.yml
+    with:
+      scanner_model: z-ai/glm-4-32b
+      vhack_model: meta-llama/llama-3.1-8b-instruct
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
