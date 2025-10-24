@@ -1,8 +1,8 @@
 name: Generate Prompts for GPT-5-Nano
 
 on:
-  push:
-    branches: [main, build-action]
+  # push:
+  #   branches: [main, build-action]
   workflow_dispatch:
 
 jobs:

@@ -1,8 +1,8 @@
 name: Generate Prompts for GLM-4-32B
 
 on:
-  push:
-    branches: [main, build-action]
+  # push:
+  #   branches: [main, build-action]
   workflow_dispatch:
 
 jobs:

@@ -1,8 +1,8 @@
 name: Generate Prompts for Mistral-7B-Instruct
 
 on:
-  push:
-    branches: [main, build-action]
+  # push:
+  #   branches: [main, build-action]
   workflow_dispatch:
 
 jobs:
