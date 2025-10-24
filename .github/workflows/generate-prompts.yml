@@ -1,4 +1,4 @@
-name: Generate Prompts
+name: Generate And Test Prompts
 
 on:
   workflow_dispatch:
@@ -124,3 +124,31 @@ jobs:
 
     - name: Stop VHACK service
       run: docker compose down
+
+
+      
+  evaluate-results:
+    needs: test-prompts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download results artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: vulnerability-scanner-results
+          path: results
+
+      - name: Evaluate summary.md
+        run: |
+          cd results
+          # Extract time elapsed in seconds
+          TIME_ELAPSED=$(grep "Total time elapsed:" summary.md | sed 's/.*: \([0-9.]*\) seconds.*/\1/')
+          # Extract worked prompts count
+          WORKED_PROMPTS=$(grep "**Worked Prompts:**" summary.md | sed 's/.*: \([0-9]*\).*/\1/')
+          
+          # Check conditions
+          if (( $(echo "$TIME_ELAPSED > 600" | bc -l) )) || (( WORKED_PROMPTS < 5 )); then
+            echo "Evaluation failed: Time elapsed ($TIME_ELAPSED s > 600 s) or Worked prompts ($WORKED_PROMPTS < 5)"
+            exit 1
+          else
+            echo "Evaluation passed: Time elapsed $TIME_ELAPSED s, Worked prompts $WORKED_PROMPTS"
+          fi
