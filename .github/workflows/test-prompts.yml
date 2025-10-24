@@ -39,6 +39,7 @@ jobs:
         name: generated-prompts
         path: vulnerability-scanner-rs
         run-id: ${{ inputs.generate_run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Download test-categories artifact
       uses: actions/download-artifact@v4
@@ -46,6 +47,7 @@ jobs:
         name: test-categories
         path: vulnerability-scanner-rs
         run-id: ${{ inputs.generate_run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up Rust
       uses: actions-rust-lang/setup-rust-toolchain@v1
