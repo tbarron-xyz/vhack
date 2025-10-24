@@ -45,6 +45,13 @@ jobs:
         name: test-categories
         path: vulnerability-scanner-rs/testcategories.md
 
+    - name: Cache save rust build target
+      id: cache-target-save
+      uses: actions/cache/save@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: vulnerability-scanner-target
+
 
 
   test-prompts:
@@ -69,26 +76,30 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: generated-prompts
+        path: vulnerability-scanner-rs/prompts.csv
 
     - name: Download test-categories artifact
       uses: actions/download-artifact@v4
       with:
         name: test-categories
+        path: vulnerability-scanner-rs/testcategories.md
 
     - name: Set up Rust
       uses: actions-rust-lang/setup-rust-toolchain@v1
 
-    - name: Build vulnerability-scanner-rs
-      run: |
-        cd vulnerability-scanner-rs
-        cargo build --release
+    - name: Cache restore rust build target
+      id: cache-target-restore
+      uses: actions/cache/restore@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: vulnerability-scanner-target
 
     - name: Start VHACK service
       run: docker compose up --build -d
 
     - name: Wait for VHACK service to be ready
       run: |
-        timeout 300 bash -c 'until curl -f http://localhost:8000/health; do sleep 5; done'
+        timeout 300 bash -c 'until curl -f http://localhost:8000/; do sleep 5; done'
 
     - name: Run vulnerability-scanner-rs with parallelism
       run: |
