@@ -11,3 +11,5 @@ jobs:
     with:
       scanner_model: meta-llama/llama-3.1-8b-instruct
       vhack_model: meta-llama/llama-3.1-8b-instruct
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

@@ -11,3 +11,5 @@ jobs:
     with:
       scanner_model: openai/gpt-5-nano
       vhack_model: z-ai/glm-4-32b
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
