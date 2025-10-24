@@ -18,12 +18,21 @@ jobs:
     - name: Set up Rust
       uses: actions-rust-lang/setup-rust-toolchain@v1
 
+    - name: Cache restore rust build target
+      id: cache-target
+      uses: actions/cache/restore@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
+
     - name: Build vulnerability-scanner-rs
+      if: steps.cache-target.outputs.cache-hit != 'true'
       run: |
         cd vulnerability-scanner-rs
         cargo build --release
 
     - name: Cache save rust build target
+      if: steps.cache-target.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: vulnerability-scanner-rs/target
@@ -155,10 +164,10 @@ jobs:
           cd results
           # Extract time elapsed in seconds
           TIME_ELAPSED=$(grep "Total time elapsed:" summary.md | sed 's/.*: \([0-9.]*\) seconds.*/\1/')
-           # Extract worked prompts count
-           WORKED_PROMPTS=$(grep "**Worked Prompts:**" summary.md | sed 's/.*:\s*\([0-9]*\).*/\1/')
-           # Extract total prompts tested count
-           TOTAL_PROMPTS=$(grep "**Total Prompts Tested:**" summary.md | sed 's/.*:\s*\([0-9]*\).*/\1/')
+          # Extract worked prompts count
+          WORKED_PROMPTS=$(grep -F "**Worked Prompts:**" summary.md | sed 's/.*:\s*\([0-9]*\).*/\1/')
+          # Extract total prompts tested count
+          TOTAL_PROMPTS=$(grep -F "**Total Prompts Tested:**" summary.md | sed 's/.*:\s*\([0-9]*\).*/\1/')
 
           # Check conditions
           if (( $(echo "$TIME_ELAPSED > 600" | bc -l) )) || (( WORKED_PROMPTS < 5 )) || (( TOTAL_PROMPTS <= 100 )); then
