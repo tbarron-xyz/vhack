@@ -143,6 +143,7 @@ jobs:
         path: |
           vulnerability-scanner-rs/results.jsonl
           vulnerability-scanner-rs/summary.md
+          vulnerability-scanner-rs/summary.csv
 
     - name: Stop VHACK service
       run: docker compose down
@@ -159,15 +160,13 @@ jobs:
           name: vulnerability-scanner-results
           path: results
 
-      - name: Evaluate summary.md
+      - name: Evaluate summary.csv
         run: |
           cd results
-          # Extract time elapsed in seconds
-          TIME_ELAPSED=$(grep "Total time elapsed:" summary.md | sed 's/.*: \([0-9.]*\) seconds.*/\1/')
-          # Extract worked prompts count
-          WORKED_PROMPTS=$(grep -F "**Worked Prompts:**" summary.md | sed 's/.*:\s*\([0-9]*\).*/\1/')
-          # Extract total prompts tested count
-          TOTAL_PROMPTS=$(grep -F "**Total Prompts Tested:**" summary.md | sed 's/.*:\s*\([0-9]*\).*/\1/')
+          # Extract from summary.csv (columns: elapsed_seconds,total_prompts_tested,prompts_worked)
+          TIME_ELAPSED=$(tail -n1 summary.csv | cut -d',' -f1)
+          TOTAL_PROMPTS=$(tail -n1 summary.csv | cut -d',' -f2)
+          WORKED_PROMPTS=$(tail -n1 summary.csv | cut -d',' -f3)
 
           # Check conditions
           if (( $(echo "$TIME_ELAPSED > 600" | bc -l) )) || (( WORKED_PROMPTS < 5 )) || (( TOTAL_PROMPTS <= 100 )); then
