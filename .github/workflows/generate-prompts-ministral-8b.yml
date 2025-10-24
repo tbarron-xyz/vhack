@@ -1,4 +1,4 @@
-name: Generate Prompts for Ministral-8B
+name: Generate prompts with Ministral-8B
 
 on:
   # push:

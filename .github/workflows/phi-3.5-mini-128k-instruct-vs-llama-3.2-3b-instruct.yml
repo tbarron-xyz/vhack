@@ -2,7 +2,7 @@ name: "phi-3.5-mini-128k-instruct -vs-> llama-3.2-3b-instruct"
 
 on:
   workflow_run:
-    workflows: ["Generate Prompts for Phi-3.5-Mini-128K-Instruct"]
+    workflows: ["Generate prompts with Phi-3.5-Mini-128K-Instruct"]
     types: [completed]
 
 jobs:

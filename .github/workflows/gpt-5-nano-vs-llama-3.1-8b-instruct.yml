@@ -2,7 +2,7 @@ name: "gpt-5-nano -vs-> llama-3.1-8b-instruct"
 
 on:
   workflow_run:
-    workflows: ["Generate Prompts for GPT-5-Nano"]
+    workflows: ["Generate prompts with GPT-5-Nano"]
     types: [completed]
 
 jobs:

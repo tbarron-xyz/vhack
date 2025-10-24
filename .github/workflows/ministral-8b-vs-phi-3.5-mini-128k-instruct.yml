@@ -2,7 +2,7 @@ name: "ministral-8b -vs-> phi-3.5-mini-128k-instruct"
 
 on:
   workflow_run:
-    workflows: ["Generate Prompts for Ministral-8B"]
+    workflows: ["Generate prompts with Ministral-8B"]
     types: [completed]
 
 jobs:

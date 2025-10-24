@@ -2,7 +2,7 @@ name: "ministral-8b -vs-> llama-3.2-3b-instruct"
 
 on:
   workflow_run:
-    workflows: ["Generate Prompts for Ministral-8B"]
+    workflows: ["Generate prompts with Ministral-8B"]
     types: [completed]
 
 jobs:

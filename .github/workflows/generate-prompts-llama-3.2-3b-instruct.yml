@@ -1,4 +1,4 @@
-name: Generate Prompts for Llama-3.2-3B-Instruct
+name: Generate prompts with Llama-3.2-3B-Instruct
 
 on:
   # push:

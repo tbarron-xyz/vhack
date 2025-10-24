@@ -1,4 +1,4 @@
-name: Generate Prompts for Mistral-7B-Instruct
+name: Generate prompts with Mistral-7B-Instruct
 
 on:
   # push:

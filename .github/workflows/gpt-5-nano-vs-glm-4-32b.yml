@@ -2,7 +2,7 @@ name: "gpt-5-nano -vs-> glm-4-32b"
 
 on:
   workflow_run:
-    workflows: ["Generate Prompts for GPT-5-Nano"]
+    workflows: ["Generate prompts with GPT-5-Nano"]
     types: [completed]
 
 jobs:

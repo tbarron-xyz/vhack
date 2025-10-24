@@ -2,7 +2,7 @@ name: "mistral-7b-instruct -vs-> qwen-2.5-7b-instruct"
 
 on:
   workflow_run:
-    workflows: ["Generate Prompts for Mistral-7B-Instruct"]
+    workflows: ["Generate prompts with Mistral-7B-Instruct"]
     types: [completed]
 
 jobs:

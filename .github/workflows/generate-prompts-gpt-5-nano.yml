@@ -1,4 +1,4 @@
-name: Generate Prompts for GPT-5-Nano
+name: Generate prompts with GPT-5-Nano
 
 on:
   # push:

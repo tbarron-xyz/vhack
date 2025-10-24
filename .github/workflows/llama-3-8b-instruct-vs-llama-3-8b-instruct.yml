@@ -2,7 +2,7 @@ name: "llama-3-8b-instruct -vs-> llama-3-8b-instruct"
 
 on:
   workflow_run:
-    workflows: ["Generate Prompts for Llama-3-8B-Instruct"]
+    workflows: ["Generate prompts with Llama-3-8B-Instruct"]
     types: [completed]
 
 jobs:

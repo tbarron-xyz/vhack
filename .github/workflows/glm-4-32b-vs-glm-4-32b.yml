@@ -2,7 +2,7 @@ name: "glm-4-32b -vs-> glm-4-32b"
 
 on:
   workflow_run:
-    workflows: ["Generate Prompts for GLM-4-32B"]
+    workflows: ["Generate prompts with GLM-4-32B"]
     types: [completed]
 
 jobs:

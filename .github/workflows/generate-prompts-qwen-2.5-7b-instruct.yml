@@ -1,4 +1,4 @@
-name: Generate Prompts for Qwen-2.5-7B-Instruct
+name: Generate prompts with Qwen-2.5-7B-Instruct
 
 on:
   # push:

@@ -1,4 +1,4 @@
-name: Generate Prompts for GLM-4-32B
+name: Generate prompts with GLM-4-32B
 
 on:
   # push:
