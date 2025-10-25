@@ -29,7 +29,7 @@ jobs:
     - name: Extract first line as tools file
       id: extract-tools-file
       run: |
-        TOOLS_FILE=$(head -n 1 ./repo-analysis/repo-analysis.md)
+        TOOLS_FILE="../$(head -n 1 ./repo-analysis/repo-analysis.md)"
         echo "tools_file=$TOOLS_FILE" >> $GITHUB_OUTPUT
         echo "Using tools file: $TOOLS_FILE"
 
