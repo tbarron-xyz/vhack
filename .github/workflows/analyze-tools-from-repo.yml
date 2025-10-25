@@ -6,10 +6,9 @@ on:
       scanner_model:
         required: true
         type: string
-      repo_analysis_artifact:
-        required: false
+      repo_analysis_run_id:
+        required: true
         type: string
-        default: "repo-analysis"
     secrets:
       OPENROUTER_API_KEY:
         required: true
@@ -23,8 +22,10 @@ jobs:
     - name: Download repo analysis artifact
       uses: actions/download-artifact@v4
       with:
-        name: ${{ inputs.repo_analysis_artifact }}
+        name: ${{ 'repo-analysis' }}
         path: ./repo-analysis
+        run-id: ${{ inputs.repo_analysis_run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Extract first line as tools file
       id: extract-tools-file
       run: |
@@ -36,7 +37,7 @@ jobs:
     needs: get-tools-file
     uses: ./.github/workflows/analyze-tools.yml
     with:
-      scanner_model: ${{ inputs.scanner_model }}
+      scanner_model: ${{ inputs.scanner_model || 'openai/gpt-5-nano' }}
       tools_file: ${{ needs.get-tools-file.outputs.tools_file }}
     secrets:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

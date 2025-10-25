@@ -47,3 +47,9 @@ jobs:
       with:
         name: tool-analysis
         path: vulnerability-scanner-rs/tool-analysis.md
+
+    - name: Upload testcategories.md as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-categories
+        path: vulnerability-scanner-rs/testcategories.md

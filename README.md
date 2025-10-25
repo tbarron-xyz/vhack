@@ -1,13 +1,19 @@
 [![build docker image](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml)
 
-### find the tool definitions and/or system prompts
+## From zero repo knowledge
+### Find the tool definitions and/or system prompts
 
 [![analyze repo: gpt-5-nano](https://github.com/tbarron-xyz/vhack/actions/workflows/analyze-repo-gpt-5-nano.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/analyze-repo-gpt-5-nano.yml)
 
-### develop a testing strategy for what the system prompts don't want you to do
+### Develop a testing strategy for what the system prompts don't want you to do
 
 [![analyze tools from repo: gpt-5-nano](https://github.com/tbarron-xyz/vhack/actions/workflows/analyze-tools-from-repo-gpt-5-nano.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/analyze-tools-from-repo-gpt-5-nano.yml)
 
+### Generate prompts for the testing strategy
+
+[![generate prompts from tool analysis: gpt-5-nano](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts-from-tool-analysis-gpt-5-nano.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts-from-tool-analysis-gpt-5-nano.yml)
+
+## From knowing where the docs are
 ### Prompt generation using pre-existing vulnerability documentation
 
 [![generate prompts: glm-4-32b](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts-glm-4-32b.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts-glm-4-32b.yml)
