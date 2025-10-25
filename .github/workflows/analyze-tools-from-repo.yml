@@ -1,0 +1,42 @@
+name: Analyze Tools from Repo Analysis
+
+on:
+  workflow_call:
+    inputs:
+      scanner_model:
+        required: true
+        type: string
+      repo_analysis_artifact:
+        required: false
+        type: string
+        default: "repo-analysis"
+    secrets:
+      OPENROUTER_API_KEY:
+        required: true
+
+jobs:
+  get-tools-file:
+    runs-on: ubuntu-latest
+    outputs:
+      tools_file: ${{ steps.extract-tools-file.outputs.tools_file }}
+    steps:
+    - name: Download repo analysis artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.repo_analysis_artifact }}
+        path: ./repo-analysis
+    - name: Extract first line as tools file
+      id: extract-tools-file
+      run: |
+        TOOLS_FILE=$(head -n 1 ./repo-analysis/repo-analysis.md)
+        echo "tools_file=$TOOLS_FILE" >> $GITHUB_OUTPUT
+        echo "Using tools file: $TOOLS_FILE"
+
+  analyze-tools:
+    needs: get-tools-file
+    uses: ./.github/workflows/analyze-tools-only.yml
+    with:
+      scanner_model: ${{ inputs.scanner_model }}
+      tools_file: ${{ needs.get-tools-file.outputs.tools_file }}
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

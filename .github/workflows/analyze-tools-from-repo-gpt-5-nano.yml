@@ -1,0 +1,12 @@
+name: Analyze Tools from Repo with GPT-5-Nano
+
+on:
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    uses: ./.github/workflows/analyze-tools-from-repo.yml
+    with:
+      scanner_model: openai/gpt-5-nano
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
