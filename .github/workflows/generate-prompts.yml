@@ -6,6 +6,13 @@ on:
       scanner_model:
         required: true
         type: string
+      tool_analysis_run_id:
+        required: false
+        type: string
+      tool_analysis_artifact:
+        required: false
+        type: string
+        default: "test-categories"
     secrets:
       OPENROUTER_API_KEY:
         required: true
@@ -30,6 +37,15 @@ jobs:
       with:
         path: vulnerability-scanner-rs/target
         key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
+
+    - name: Download testcategories artifact
+      if: inputs.tool_analysis_run_id != ''
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ inputs.tool_analysis_artifact }}
+        path: vulnerability-scanner-rs/
+        run-id: ${{ inputs.tool_analysis_run_id }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Generate prompts
       run: |

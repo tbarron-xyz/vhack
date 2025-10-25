@@ -18,25 +18,11 @@ on:
         required: true
 
 jobs:
-  download-testcategories:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Download testcategories artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: ${{ inputs.tool_analysis_artifact }}
-        path: ./downloaded-testcategories
-        run-id: ${{ inputs.tool_analysis_run_id }}
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-    - name: Move testcategories.md to expected location
-      run: |
-        mkdir -p vulnerability-scanner-rs
-        mv ./downloaded-testcategories/testcategories.md vulnerability-scanner-rs/testcategories.md
-
   generate-prompts:
-    needs: download-testcategories
     uses: ./.github/workflows/generate-prompts.yml
     with:
       scanner_model: ${{ inputs.scanner_model }}
+      tool_analysis_run_id: ${{ inputs.tool_analysis_run_id }}
+      tool_analysis_artifact: ${{ inputs.tool_analysis_artifact }}
     secrets:
       OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
