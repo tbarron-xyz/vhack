@@ -1,5 +1,7 @@
 [![build docker image](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml)
 
+[![analyze tools: gpt-5-nano](https://github.com/tbarron-xyz/vhack/actions/workflows/analyze-tools-gpt-5-nano.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/analyze-tools-gpt-5-nano.yml)
+
 [![generate prompts: glm-4-32b](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts-glm-4-32b.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts-glm-4-32b.yml)
 
 [![generate prompts: gpt-5-nano](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts-gpt-5-nano.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/generate-prompts-gpt-5-nano.yml)
