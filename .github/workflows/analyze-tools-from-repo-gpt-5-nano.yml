@@ -2,9 +2,8 @@ name: Given system prompts file, write vulnerability testing strategies (gpt-5-n
 
 on:
   workflow_run:
-    workflows: ["Given repo structure, which file contains system prompts? (gpt-5-nano)"]
-    types:
-      - completed
+    workflows: ["Given repo structure, which file contains system prompts (gpt-5-nano)"]
+    types: [completed]
 
 jobs:
   analyze:
