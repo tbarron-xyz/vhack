@@ -7,7 +7,7 @@ on:
 
 jobs:
   generate:
-    uses: ./.github/workflows/generate-prompts-only.yml
+    uses: ./.github/workflows/generate-prompts.yml
     with:
       scanner_model: meta-llama/llama-3.1-8b-instruct
     secrets:

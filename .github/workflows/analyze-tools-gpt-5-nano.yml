@@ -7,7 +7,7 @@ on:
 
 jobs:
   analyze:
-    uses: ./.github/workflows/analyze-tools-only.yml
+    uses: ./.github/workflows/analyze-tools.yml
     with:
       scanner_model: openai/gpt-5-nano
     secrets:

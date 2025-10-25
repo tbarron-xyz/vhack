@@ -34,7 +34,7 @@ jobs:
 
   analyze-tools:
     needs: get-tools-file
-    uses: ./.github/workflows/analyze-tools-only.yml
+    uses: ./.github/workflows/analyze-tools.yml
     with:
       scanner_model: ${{ inputs.scanner_model }}
       tools_file: ${{ needs.get-tools-file.outputs.tools_file }}

@@ -7,7 +7,7 @@ on:
 
 jobs:
   generate:
-    uses: ./.github/workflows/generate-prompts-only.yml
+    uses: ./.github/workflows/generate-prompts.yml
     with:
       scanner_model: openai/gpt-5-nano
     secrets:
