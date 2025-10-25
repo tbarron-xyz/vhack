@@ -16,35 +16,7 @@ on:
 
 jobs:
   build-rust:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Cache restore rust build target
-        id: cache-target
-        uses: actions/cache/restore@v4
-        with:
-          path: vulnerability-scanner-rs/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
-
-      - name: Set up Rust
-        if: steps.cache-target.outputs.cache-hit != 'true'
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-
-      - name: Build vulnerability-scanner-rs
-        if: steps.cache-target.outputs.cache-hit != 'true'
-        run: |
-          cd vulnerability-scanner-rs
-          cargo build --release
-
-      - name: Cache save rust build target
-        if: steps.cache-target.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: vulnerability-scanner-rs/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
+    uses: ./.github/workflows/build-rust.yml
 
   analyze-tools:
     needs: build-rust

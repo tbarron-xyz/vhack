@@ -1,4 +1,4 @@
-name: Analyze Tools from Repo with GPT-5-Nano
+name: Given system prompts file, write vulnerability testing strategies
 
 on:
   workflow_dispatch:

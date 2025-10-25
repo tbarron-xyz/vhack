@@ -1,4 +1,4 @@
-name: Analyze repo with GPT-5-Nano
+name: Given repo structure, which file contains system prompts? (gpt-5-nano)
 
 on:
   workflow_dispatch:
