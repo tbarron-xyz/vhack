@@ -1,0 +1,74 @@
+name: Analyze Org Repos
+
+on:
+  workflow_call:
+    inputs:
+      org_name:
+        required: true
+        type: string
+      scanner_model:
+        required: true
+        type: string
+    secrets:
+      OPENROUTER_API_KEY:
+        required: true
+  workflow_dispatch:
+    inputs:
+      org_name:
+        required: true
+        type: string
+      scanner_model:
+        required: false
+        default: 'openai/gpt-5-nano'
+        type: string
+
+jobs:
+  build-rust:
+    uses: ./.github/workflows/build-rust.yml
+
+  analyze-org-repos:
+    needs: build-rust
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - name: Checkout scanner repo
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Cache restore rust build target
+      uses: actions/cache/restore@v4
+      with:
+        path: vulnerability-scanner-rs/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('vulnerability-scanner-rs/src/**/*.rs') }}
+
+    - name: Get public repos
+      id: get_repos
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        repos=$(gh repo list ${{ inputs.org_name }} --visibility=public --json nameWithOwner -q '.[].nameWithOwner' | head -3)
+        echo "repos=$repos" >> $GITHUB_OUTPUT
+
+    - name: Analyze repos sequentially
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      run: |
+        mkdir -p repo-analyses
+        for repo in ${{ steps.get_repos.outputs.repos }}; do
+          echo "Analyzing $repo"
+          mkdir -p repos/$repo
+          cd repos/$repo
+          git clone https://github.com/$repo.git .
+          cd ../../../vulnerability-scanner-rs
+          ./target/release/vulnerability-scanner-rs --analyze-repo --repo-path ../repos/$repo --exclude-path "" --provider openrouter --model ${{ inputs.scanner_model }} --api-max-retries 3 --max-tokens 10000
+          cp repo-analysis.md ../repo-analyses/repo-${repo//\//-}-analysis.md
+          cd ..
+        done
+
+    - name: Upload repo analyses
+      uses: actions/upload-artifact@v4
+      with:
+        name: repo-analyses
+        path: repo-analyses/

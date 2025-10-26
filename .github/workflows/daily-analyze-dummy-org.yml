@@ -1,0 +1,15 @@
+name: Given target org, analyze all repos every 24h
+
+on:
+  # schedule:
+    # - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  analyze-dummy-org:
+    uses: ./.github/workflows/analyze-org-repos.yml
+    with:
+      org_name: dummy-org-xyz
+      scanner_model: gpt-5-nano
+    secrets:
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}

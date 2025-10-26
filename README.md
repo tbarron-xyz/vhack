@@ -1,5 +1,7 @@
 [![build docker image](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/build-docker.yml)
 
+[![daily analyze dummy org](https://github.com/tbarron-xyz/vhack/actions/workflows/daily-analyze-dummy-org.yml/badge.svg)](https://github.com/tbarron-xyz/vhack/actions/workflows/daily-analyze-dummy-org.yml)
+
 ## From zero repo knowledge
 ### Find the tool definitions and/or system prompts
 
